@@ -1,0 +1,21 @@
+--- payjoin/src/send/v2/mod.rs
++++ replace > with < in Sender::extract_v2
+@@ -138,17 +138,17 @@
+         &self,
+         ohttp_relay: Url,
+     ) -> Result<(Request, V2PostContext), CreateRequestError> {
+         use crate::hpke::encrypt_message_a;
+         use crate::ohttp::ohttp_encapsulate;
+         use crate::send::PsbtContext;
+         use crate::uri::UrlExt;
+         if let Ok(expiry) = self.v1.endpoint.exp() {
+-            if std::time::SystemTime::now() > expiry {
++            if std::time::SystemTime::now() < /* ~ changed by cargo-mutants ~ */ expiry {
+                 return Err(InternalCreateRequestError::Expired(expiry).into());
+             }
+         }
+         let rs = self.extract_rs_pubkey()?;
+         let url = self.v1.endpoint.clone();
+         let body = serialize_v2_body(
+             &self.v1.psbt,
+             self.v1.disable_output_substitution,

@@ -1,0 +1,21 @@
+--- payjoin/src/send/v2/mod.rs
++++ replace Sender::endpoint -> &Url with &Default::default()
+@@ -185,17 +185,17 @@
+     }
+ 
+     fn extract_rs_pubkey(
+         &self,
+     ) -> Result<HpkePublicKey, crate::uri::url_ext::ParseReceiverPubkeyParamError> {
+         self.v1.endpoint.receiver_pubkey()
+     }
+ 
+-    pub fn endpoint(&self) -> &Url { self.v1.endpoint() }
++    pub fn endpoint(&self) -> &Url { &Default::default() /* ~ changed by cargo-mutants ~ */ }
+ }
+ 
+ fn serialize_v2_body(
+     psbt: &Psbt,
+     disable_output_substitution: bool,
+     fee_contribution: Option<AdditionalFeeContribution>,
+     min_fee_rate: FeeRate,
+ ) -> Result<Vec<u8>, CreateRequestError> {

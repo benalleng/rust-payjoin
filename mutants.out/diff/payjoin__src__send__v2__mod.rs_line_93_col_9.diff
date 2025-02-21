@@ -1,0 +1,29 @@
+--- payjoin/src/send/v2/mod.rs
++++ replace SenderBuilder<'a>::build_with_additional_fee -> Result<Sender, BuildSenderError> with Ok(Default::default())
+@@ -85,25 +85,17 @@
+     /// be just lowered in the request to match the change amount.
+     pub fn build_with_additional_fee(
+         self,
+         max_fee_contribution: bitcoin::Amount,
+         change_index: Option<usize>,
+         min_fee_rate: FeeRate,
+         clamp_fee_contribution: bool,
+     ) -> Result<Sender, BuildSenderError> {
+-        Ok(Sender {
+-            v1: self.0.build_with_additional_fee(
+-                max_fee_contribution,
+-                change_index,
+-                min_fee_rate,
+-                clamp_fee_contribution,
+-            )?,
+-            reply_key: HpkeKeyPair::gen_keypair().0,
+-        })
++        Ok(Default::default()) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Perform Payjoin without incentivizing the payee to cooperate.
+     ///
+     /// While it's generally better to offer some contribution some users may wish not to.
+     /// This function disables contribution.
+     pub fn build_non_incentivizing(
+         self,

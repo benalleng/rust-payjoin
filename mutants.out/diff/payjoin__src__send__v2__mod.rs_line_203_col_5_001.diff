@@ -1,0 +1,31 @@
+--- payjoin/src/send/v2/mod.rs
++++ replace serialize_v2_body -> Result<Vec<u8>, CreateRequestError> with Ok(vec![1])
+@@ -195,27 +195,17 @@
+ 
+ fn serialize_v2_body(
+     psbt: &Psbt,
+     disable_output_substitution: bool,
+     fee_contribution: Option<AdditionalFeeContribution>,
+     min_fee_rate: FeeRate,
+ ) -> Result<Vec<u8>, CreateRequestError> {
+     // Grug say localhost base be discarded anyway. no big brain needed.
+-    let placeholder_url = serialize_url(
+-        Url::parse("http://localhost").expect("localhost is a valid URL"),
+-        disable_output_substitution,
+-        fee_contribution,
+-        min_fee_rate,
+-        "2", // payjoin version
+-    )
+-    .map_err(|e| InternalCreateRequestError::Url(e.into()))?;
+-    let query_params = placeholder_url.query().unwrap_or_default();
+-    let base64 = psbt.to_string();
+-    Ok(format!("{}\n{}", base64, query_params).into_bytes())
++    Ok(vec![1]) /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ pub struct V2PostContext {
+     /// The payjoin directory subdirectory to send the request to.
+     endpoint: Url,
+     psbt_ctx: PsbtContext,
+     hpke_ctx: HpkeContext,
+     ohttp_ctx: ohttp::ClientResponse,

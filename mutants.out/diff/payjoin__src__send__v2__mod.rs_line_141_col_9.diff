@@ -1,0 +1,64 @@
+--- payjoin/src/send/v2/mod.rs
++++ replace Sender::extract_v2 -> Result<(Request, V2PostContext), CreateRequestError> with Ok((Default::default(), Default::default()))
+@@ -133,60 +133,17 @@
+     /// Extract serialized Request and Context from a Payjoin Proposal.
+     ///
+     /// This method requires the `rs` pubkey to be extracted from the endpoint
+     /// and has no fallback to v1.
+     pub fn extract_v2(
+         &self,
+         ohttp_relay: Url,
+     ) -> Result<(Request, V2PostContext), CreateRequestError> {
+-        use crate::hpke::encrypt_message_a;
+-        use crate::ohttp::ohttp_encapsulate;
+-        use crate::send::PsbtContext;
+-        use crate::uri::UrlExt;
+-        if let Ok(expiry) = self.v1.endpoint.exp() {
+-            if std::time::SystemTime::now() > expiry {
+-                return Err(InternalCreateRequestError::Expired(expiry).into());
+-            }
+-        }
+-        let rs = self.extract_rs_pubkey()?;
+-        let url = self.v1.endpoint.clone();
+-        let body = serialize_v2_body(
+-            &self.v1.psbt,
+-            self.v1.disable_output_substitution,
+-            self.v1.fee_contribution,
+-            self.v1.min_fee_rate,
+-        )?;
+-        let hpke_ctx = HpkeContext::new(rs, &self.reply_key);
+-        let body = encrypt_message_a(
+-            body,
+-            &hpke_ctx.reply_pair.public_key().clone(),
+-            &hpke_ctx.receiver.clone(),
+-        )
+-        .map_err(InternalCreateRequestError::Hpke)?;
+-        let mut ohttp =
+-            self.v1.endpoint.ohttp().map_err(|_| InternalCreateRequestError::MissingOhttpConfig)?;
+-        let (body, ohttp_ctx) = ohttp_encapsulate(&mut ohttp, "POST", url.as_str(), Some(&body))
+-            .map_err(InternalCreateRequestError::OhttpEncapsulation)?;
+-        log::debug!("ohttp_relay_url: {:?}", ohttp_relay);
+-        Ok((
+-            Request::new_v2(&ohttp_relay, &body),
+-            V2PostContext {
+-                endpoint: self.v1.endpoint.clone(),
+-                psbt_ctx: PsbtContext {
+-                    original_psbt: self.v1.psbt.clone(),
+-                    disable_output_substitution: self.v1.disable_output_substitution,
+-                    fee_contribution: self.v1.fee_contribution,
+-                    payee: self.v1.payee.clone(),
+-                    min_fee_rate: self.v1.min_fee_rate,
+-                },
+-                hpke_ctx,
+-                ohttp_ctx,
+-            },
+-        ))
++        Ok((Default::default(), Default::default())) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     fn extract_rs_pubkey(
+         &self,
+     ) -> Result<HpkePublicKey, crate::uri::url_ext::ParseReceiverPubkeyParamError> {
+         self.v1.endpoint.receiver_pubkey()
+     }
+ 

@@ -1,0 +1,36 @@
+--- payjoin/src/send/v2/mod.rs
++++ replace V2PostContext::process_response -> Result<V2GetContext, EncapsulationError> with Ok(Default::default())
+@@ -218,32 +218,17 @@
+     endpoint: Url,
+     psbt_ctx: PsbtContext,
+     hpke_ctx: HpkeContext,
+     ohttp_ctx: ohttp::ClientResponse,
+ }
+ 
+ impl V2PostContext {
+     pub fn process_response(self, response: &[u8]) -> Result<V2GetContext, EncapsulationError> {
+-        let response_array: &[u8; crate::directory::ENCAPSULATED_MESSAGE_BYTES] = response
+-            .try_into()
+-            .map_err(|_| InternalEncapsulationError::InvalidSize(response.len()))?;
+-        let response = ohttp_decapsulate(self.ohttp_ctx, response_array)
+-            .map_err(InternalEncapsulationError::Ohttp)?;
+-        match response.status() {
+-            http::StatusCode::OK => {
+-                // return OK with new Typestate
+-                Ok(V2GetContext {
+-                    endpoint: self.endpoint,
+-                    psbt_ctx: self.psbt_ctx,
+-                    hpke_ctx: self.hpke_ctx,
+-                })
+-            }
+-            _ => Err(InternalEncapsulationError::UnexpectedStatusCode(response.status()))?,
+-        }
++        Ok(Default::default()) /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ #[derive(Debug, Clone)]
+ pub struct V2GetContext {
+     /// The payjoin directory subdirectory to send the request to.
+     endpoint: Url,
+     psbt_ctx: PsbtContext,

@@ -1,0 +1,24 @@
+--- payjoin/src/send/v2/mod.rs
++++ replace SenderBuilder<'a>::build_non_incentivizing -> Result<Sender, BuildSenderError> with Ok(Default::default())
+@@ -104,20 +104,17 @@
+     /// Perform Payjoin without incentivizing the payee to cooperate.
+     ///
+     /// While it's generally better to offer some contribution some users may wish not to.
+     /// This function disables contribution.
+     pub fn build_non_incentivizing(
+         self,
+         min_fee_rate: FeeRate,
+     ) -> Result<Sender, BuildSenderError> {
+-        Ok(Sender {
+-            v1: self.0.build_non_incentivizing(min_fee_rate)?,
+-            reply_key: HpkeKeyPair::gen_keypair().0,
+-        })
++        Ok(Default::default()) /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+ pub struct Sender {
+     /// The v1 Sender.
+     v1: v1::Sender,
+     /// The secret key to decrypt the receiver's reply.

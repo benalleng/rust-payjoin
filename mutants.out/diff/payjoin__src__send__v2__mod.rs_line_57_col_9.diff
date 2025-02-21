@@ -1,0 +1,21 @@
+--- payjoin/src/send/v2/mod.rs
++++ replace SenderBuilder<'a>::always_disable_output_substitution -> Self with Default::default()
+@@ -49,17 +49,17 @@
+ 
+     /// Disable output substitution even if the receiver didn't.
+     ///
+     /// This forbids receiver switching output or decreasing amount.
+     /// It is generally **not** recommended to set this as it may prevent the receiver from
+     /// doing advanced operations such as opening LN channels and it also guarantees the
+     /// receiver will **not** reward the sender with a discount.
+     pub fn always_disable_output_substitution(self, disable: bool) -> Self {
+-        Self(self.0.always_disable_output_substitution(disable))
++        Default::default() /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     // Calculate the recommended fee contribution for an Original PSBT.
+     //
+     // BIP 78 recommends contributing `originalPSBTFeeRate * vsize(sender_input_type)`.
+     // The minfeerate parameter is set if the contribution is available in change.
+     //
+     // This method fails if no recommendation can be made or if the PSBT is malformed.
