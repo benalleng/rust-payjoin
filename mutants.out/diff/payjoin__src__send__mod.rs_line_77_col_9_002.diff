@@ -1,0 +1,26 @@
+--- payjoin/src/send/mod.rs
++++ replace PsbtContext::process_proposal -> InternalResult<Psbt> with InternalResult::new()
+@@ -69,22 +69,17 @@
+         if !($cond) {
+             return Err(InternalProposalError::$error);
+         }
+     };
+ }
+ 
+ impl PsbtContext {
+     fn process_proposal(self, mut proposal: Psbt) -> InternalResult<Psbt> {
+-        self.basic_checks(&proposal)?;
+-        self.check_inputs(&proposal)?;
+-        let contributed_fee = self.check_outputs(&proposal)?;
+-        self.restore_original_utxos(&mut proposal)?;
+-        self.check_fees(&proposal, contributed_fee)?;
+-        Ok(proposal)
++        InternalResult::new() /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     fn check_fees(&self, proposal: &Psbt, contributed_fee: Amount) -> InternalResult<()> {
+         let proposed_fee = proposal.fee().map_err(InternalProposalError::Psbt)?;
+         let original_fee = self.original_psbt.fee().map_err(InternalProposalError::Psbt)?;
+         ensure!(original_fee <= proposed_fee, AbsoluteFeeDecreased);
+         ensure!(contributed_fee <= proposed_fee - original_fee, PayeeTookContributedFee);
+         let original_weight = self.original_psbt.clone().extract_tx_unchecked_fee_rate().weight();

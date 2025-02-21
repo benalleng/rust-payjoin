@@ -1,0 +1,21 @@
+--- payjoin/src/send/mod.rs
++++ replace == with != in check_single_payee
+@@ -278,17 +278,17 @@
+ /// and that the payee's output amount matches the requested amount.
+ fn check_single_payee(
+     psbt: &Psbt,
+     script_pubkey: &Script,
+     amount: Option<bitcoin::Amount>,
+ ) -> Result<(), InternalBuildSenderError> {
+     let mut payee_found = false;
+     for output in &psbt.unsigned_tx.output {
+-        if output.script_pubkey == *script_pubkey {
++        if output.script_pubkey != /* ~ changed by cargo-mutants ~ */ *script_pubkey {
+             if let Some(amount) = amount {
+                 if output.value != amount {
+                     return Err(InternalBuildSenderError::PayeeValueNotEqual);
+                 }
+             }
+             if payee_found {
+                 return Err(InternalBuildSenderError::MultiplePayeeOutputs);
+             }

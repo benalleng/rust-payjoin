@@ -1,0 +1,37 @@
+--- payjoin/src/send/mod.rs
++++ replace PsbtContext::restore_original_utxos -> InternalResult<()> with InternalResult::new(())
+@@ -194,33 +194,17 @@
+         ensure!(original_inputs.peek().is_none(), MissingOrShuffledInputs);
+         Ok(())
+     }
+ 
+     /// Restore Original PSBT utxos that the receiver stripped.
+     /// The BIP78 spec requires utxo information to be removed, but many wallets
+     /// require it to be present to sign.
+     fn restore_original_utxos(&self, proposal: &mut Psbt) -> InternalResult<()> {
+-        let mut original_inputs = self.original_psbt.input_pairs().peekable();
+-        let proposal_inputs =
+-            proposal.unsigned_tx.input.iter().zip(&mut proposal.inputs).peekable();
+-
+-        for (proposed_txin, proposed_psbtin) in proposal_inputs {
+-            if let Some(original) = original_inputs.peek() {
+-                if proposed_txin.previous_output == original.txin.previous_output {
+-                    proposed_psbtin.non_witness_utxo = original.psbtin.non_witness_utxo.clone();
+-                    proposed_psbtin.witness_utxo = original.psbtin.witness_utxo.clone();
+-                    proposed_psbtin.bip32_derivation = original.psbtin.bip32_derivation.clone();
+-                    proposed_psbtin.tap_internal_key = original.psbtin.tap_internal_key;
+-                    proposed_psbtin.tap_key_origins = original.psbtin.tap_key_origins.clone();
+-                    original_inputs.next();
+-                }
+-            }
+-        }
+-        Ok(())
++        InternalResult::new(()) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     fn check_outputs(&self, proposal: &Psbt) -> InternalResult<Amount> {
+         let mut original_outputs =
+             self.original_psbt.unsigned_tx.output.iter().enumerate().peekable();
+         let mut contributed_fee = Amount::ZERO;
+ 
+         for (proposed_txout, proposed_psbtout) in

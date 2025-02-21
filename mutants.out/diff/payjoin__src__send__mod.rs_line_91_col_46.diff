@@ -1,0 +1,21 @@
+--- payjoin/src/send/mod.rs
++++ replace / with * in PsbtContext::check_fees
+@@ -83,17 +83,17 @@
+     }
+ 
+     fn check_fees(&self, proposal: &Psbt, contributed_fee: Amount) -> InternalResult<()> {
+         let proposed_fee = proposal.fee().map_err(InternalProposalError::Psbt)?;
+         let original_fee = self.original_psbt.fee().map_err(InternalProposalError::Psbt)?;
+         ensure!(original_fee <= proposed_fee, AbsoluteFeeDecreased);
+         ensure!(contributed_fee <= proposed_fee - original_fee, PayeeTookContributedFee);
+         let original_weight = self.original_psbt.clone().extract_tx_unchecked_fee_rate().weight();
+-        let original_fee_rate = original_fee / original_weight;
++        let original_fee_rate = original_fee * /* ~ changed by cargo-mutants ~ */ original_weight;
+         let original_spks = self
+             .original_psbt
+             .input_pairs()
+             .map(|input_pair| {
+                 input_pair
+                     .previous_txout()
+                     .map_err(InternalProposalError::PrevTxOut)
+                     .map(|txout| txout.script_pubkey.clone())

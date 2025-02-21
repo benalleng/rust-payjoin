@@ -1,0 +1,31 @@
+--- payjoin/src/send/mod.rs
++++ replace PsbtContext::basic_checks -> InternalResult<()> with InternalResult::new(())
+@@ -124,27 +124,17 @@
+             let proposed_weight = proposal.clone().extract_tx_unchecked_fee_rate().weight();
+             ensure!(proposed_fee / proposed_weight >= self.min_fee_rate, FeeRateBelowMinimum);
+         }
+         Ok(())
+     }
+ 
+     /// Check that the version and lock time are the same as in the original PSBT.
+     fn basic_checks(&self, proposal: &Psbt) -> InternalResult<()> {
+-        check_eq!(
+-            proposal.unsigned_tx.version,
+-            self.original_psbt.unsigned_tx.version,
+-            VersionsDontMatch
+-        );
+-        check_eq!(
+-            proposal.unsigned_tx.lock_time,
+-            self.original_psbt.unsigned_tx.lock_time,
+-            LockTimesDontMatch
+-        );
+-        Ok(())
++        InternalResult::new(()) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     fn check_inputs(&self, proposal: &Psbt) -> InternalResult<()> {
+         let mut original_inputs = self.original_psbt.input_pairs().peekable();
+ 
+         for proposed in proposal.input_pairs() {
+             ensure!(proposed.psbtin.bip32_derivation.is_empty(), TxInContainsKeyPaths);
+             ensure!(proposed.psbtin.partial_sigs.is_empty(), ContainsPartialSigs);

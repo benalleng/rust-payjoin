@@ -1,0 +1,40 @@
+--- payjoin/src/send/mod.rs
++++ replace clear_unneeded_fields with ()
+@@ -298,36 +298,17 @@
+     if payee_found {
+         Ok(())
+     } else {
+         Err(InternalBuildSenderError::MissingPayeeOutput)
+     }
+ }
+ 
+ fn clear_unneeded_fields(psbt: &mut Psbt) {
+-    psbt.xpub_mut().clear();
+-    psbt.proprietary_mut().clear();
+-    psbt.unknown_mut().clear();
+-    for input in psbt.inputs_mut() {
+-        input.bip32_derivation.clear();
+-        input.tap_internal_key = None;
+-        input.tap_key_origins.clear();
+-        input.tap_key_sig = None;
+-        input.tap_merkle_root = None;
+-        input.tap_script_sigs.clear();
+-        input.proprietary.clear();
+-        input.unknown.clear();
+-    }
+-    for output in psbt.outputs_mut() {
+-        output.bip32_derivation.clear();
+-        output.tap_internal_key = None;
+-        output.tap_key_origins.clear();
+-        output.proprietary.clear();
+-        output.unknown.clear();
+-    }
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// Ensure that an additional fee output is sufficient to pay for the specified additional fee
+ fn check_fee_output_amount(
+     output: &TxOut,
+     fee: bitcoin::Amount,
+     clamp_fee_contribution: bool,
+ ) -> Result<bitcoin::Amount, InternalBuildSenderError> {

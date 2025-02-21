@@ -1,0 +1,39 @@
+--- payjoin/src/send/mod.rs
++++ replace check_single_payee -> Result<(), InternalBuildSenderError> with Ok(())
+@@ -276,35 +276,17 @@
+ 
+ /// Ensure that the payee's output scriptPubKey appears in the list of outputs exactly once,
+ /// and that the payee's output amount matches the requested amount.
+ fn check_single_payee(
+     psbt: &Psbt,
+     script_pubkey: &Script,
+     amount: Option<bitcoin::Amount>,
+ ) -> Result<(), InternalBuildSenderError> {
+-    let mut payee_found = false;
+-    for output in &psbt.unsigned_tx.output {
+-        if output.script_pubkey == *script_pubkey {
+-            if let Some(amount) = amount {
+-                if output.value != amount {
+-                    return Err(InternalBuildSenderError::PayeeValueNotEqual);
+-                }
+-            }
+-            if payee_found {
+-                return Err(InternalBuildSenderError::MultiplePayeeOutputs);
+-            }
+-            payee_found = true;
+-        }
+-    }
+-    if payee_found {
+-        Ok(())
+-    } else {
+-        Err(InternalBuildSenderError::MissingPayeeOutput)
+-    }
++    Ok(()) /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ fn clear_unneeded_fields(psbt: &mut Psbt) {
+     psbt.xpub_mut().clear();
+     psbt.proprietary_mut().clear();
+     psbt.unknown_mut().clear();
+     for input in psbt.inputs_mut() {
+         input.bip32_derivation.clear();

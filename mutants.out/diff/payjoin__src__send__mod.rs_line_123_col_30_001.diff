@@ -1,0 +1,21 @@
+--- payjoin/src/send/mod.rs
++++ replace > with < in PsbtContext::check_fees
+@@ -115,17 +115,17 @@
+                     Ok(acc + weight)
+                 }
+             },
+         )?;
+         ensure!(
+             contributed_fee <= original_fee_rate * additional_input_weight,
+             FeeContributionPaysOutputSizeIncrease
+         );
+-        if self.min_fee_rate > FeeRate::ZERO {
++        if self.min_fee_rate < /* ~ changed by cargo-mutants ~ */ FeeRate::ZERO {
+             let proposed_weight = proposal.clone().extract_tx_unchecked_fee_rate().weight();
+             ensure!(proposed_fee / proposed_weight >= self.min_fee_rate, FeeRateBelowMinimum);
+         }
+         Ok(())
+     }
+ 
+     /// Check that the version and lock time are the same as in the original PSBT.
+     fn basic_checks(&self, proposal: &Psbt) -> InternalResult<()> {

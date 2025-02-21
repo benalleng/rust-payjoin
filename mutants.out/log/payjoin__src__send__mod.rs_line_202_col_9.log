@@ -1,0 +1,333 @@
+
+*** payjoin/src/send/mod.rs:202:9: replace PsbtContext::restore_original_utxos -> InternalResult<()> with InternalResult::from_iter([()])
+
+*** mutation diff:
+--- payjoin/src/send/mod.rs
++++ replace PsbtContext::restore_original_utxos -> InternalResult<()> with InternalResult::from_iter([()])
+@@ -194,33 +194,17 @@
+         ensure!(original_inputs.peek().is_none(), MissingOrShuffledInputs);
+         Ok(())
+     }
+ 
+     /// Restore Original PSBT utxos that the receiver stripped.
+     /// The BIP78 spec requires utxo information to be removed, but many wallets
+     /// require it to be present to sign.
+     fn restore_original_utxos(&self, proposal: &mut Psbt) -> InternalResult<()> {
+-        let mut original_inputs = self.original_psbt.input_pairs().peekable();
+-        let proposal_inputs =
+-            proposal.unsigned_tx.input.iter().zip(&mut proposal.inputs).peekable();
+-
+-        for (proposed_txin, proposed_psbtin) in proposal_inputs {
+-            if let Some(original) = original_inputs.peek() {
+-                if proposed_txin.previous_output == original.txin.previous_output {
+-                    proposed_psbtin.non_witness_utxo = original.psbtin.non_witness_utxo.clone();
+-                    proposed_psbtin.witness_utxo = original.psbtin.witness_utxo.clone();
+-                    proposed_psbtin.bip32_derivation = original.psbtin.bip32_derivation.clone();
+-                    proposed_psbtin.tap_internal_key = original.psbtin.tap_internal_key;
+-                    proposed_psbtin.tap_key_origins = original.psbtin.tap_key_origins.clone();
+-                    original_inputs.next();
+-                }
+-            }
+-        }
+-        Ok(())
++        InternalResult::from_iter([()]) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     fn check_outputs(&self, proposal: &Psbt) -> InternalResult<Amount> {
+         let mut original_outputs =
+             self.original_psbt.unsigned_tx.output.iter().enumerate().peekable();
+         let mut contributed_fee = Amount::ZERO;
+ 
+         for (proposed_txout, proposed_psbtout) in
+
+
+*** /home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo test --no-run --verbose --package=payjoin@0.22.0
+       Fresh unicode-ident v1.0.17
+       Fresh cfg-if v1.0.0
+       Fresh version_check v0.9.5
+       Fresh shlex v1.3.0
+       Fresh subtle v2.6.1
+       Fresh cpufeatures v0.2.17
+       Fresh autocfg v1.4.0
+       Fresh smallvec v1.14.0
+       Fresh memchr v2.7.4
+       Fresh pin-project-lite v0.2.16
+       Fresh itoa v1.0.14
+       Fresh byteorder v1.5.0
+       Fresh fnv v1.0.7
+       Fresh proc-macro2 v1.0.93
+       Fresh futures-core v0.3.31
+       Fresh once_cell v1.20.3
+       Fresh futures-sink v0.3.31
+       Fresh stable_deref_trait v1.2.0
+       Fresh bytes v1.10.0
+       Fresh untrusted v0.9.0
+       Fresh scopeguard v1.2.0
+       Fresh futures-io v0.3.31
+       Fresh libc v0.2.169
+       Fresh quote v1.0.38
+       Fresh typenum v1.18.0
+       Fresh futures-channel v0.3.31
+       Fresh futures-task v0.3.31
+       Fresh pin-utils v0.1.0
+       Fresh writeable v0.5.5
+       Fresh litemap v0.7.4
+       Fresh arrayvec v0.7.6
+       Fresh icu_locid_transform_data v1.5.0
+       Fresh rustls-pki-types v1.11.0
+       Fresh icu_properties_data v1.5.0
+       Fresh syn v2.0.98
+       Fresh generic-array v0.14.7
+       Fresh jobserver v0.1.32
+       Fresh lock_api v0.4.12
+       Fresh parking_lot_core v0.9.10
+       Fresh slab v0.4.9
+       Fresh socket2 v0.5.8
+       Fresh mio v1.0.3
+       Fresh signal-hook-registry v1.4.2
+       Fresh hex-conservative v0.2.1
+       Fresh pkg-config v0.3.31
+       Fresh http v1.2.0
+       Fresh opaque-debug v0.3.1
+       Fresh write16 v1.0.0
+       Fresh cc v1.2.15
+       Fresh serde_derive v1.0.218
+       Fresh synstructure v0.13.1
+       Fresh block-buffer v0.10.4
+       Fresh zerovec-derive v0.10.3
+       Fresh zerocopy-derive v0.7.35
+       Fresh displaydoc v0.2.5
+       Fresh zeroize_derive v1.4.2
+       Fresh futures-macro v0.3.31
+       Fresh parking_lot v0.12.3
+       Fresh tokio-macros v2.5.0
+       Fresh icu_provider_macros v1.5.0
+       Fresh bitcoin-io v0.1.3
+       Fresh inout v0.1.4
+       Fresh utf16_iter v1.0.5
+       Fresh ryu v1.0.19
+       Fresh zerofrom-derive v0.1.5
+       Fresh yoke-derive v0.7.5
+       Fresh zerocopy v0.7.35
+       Fresh zeroize v1.8.1
+       Fresh futures-util v0.3.31
+       Fresh tokio v1.43.0
+       Fresh icu_normalizer_data v1.5.0
+       Fresh utf8_iter v1.0.4
+       Fresh percent-encoding v2.3.1
+       Fresh crypto-common v0.1.6
+       Fresh tracing-core v0.1.33
+       Fresh zerofrom v0.1.5
+       Fresh ppv-lite86 v0.2.20
+       Fresh httparse v1.10.0
+       Fresh form_urlencoded v1.2.1
+       Fresh http-body v1.0.1
+       Fresh tracing-attributes v0.1.28
+       Fresh try-lock v0.2.5
+       Fresh thiserror-impl v1.0.69
+       Fresh yoke v0.7.5
+       Fresh rand_chacha v0.3.1
+       Fresh secp256k1-sys v0.10.1
+       Fresh tracing v0.1.41
+       Fresh want v0.3.1
+       Fresh serde_json v1.0.139
+       Fresh httpdate v1.0.3
+       Fresh tower-service v0.3.3
+       Fresh bitflags v2.8.0
+       Fresh digest v0.10.7
+       Fresh universal-hash v0.4.0
+       Fresh zerovec v0.10.4
+       Fresh rand v0.8.5
+       Fresh rustls-webpki v0.102.8
+       Fresh bitcoin-internals v0.3.0
+       Fresh hyper v1.6.0
+       Fresh thiserror v1.0.69
+       Fresh syn v1.0.109
+       Fresh cipher v0.3.0
+       Fresh getrandom v0.2.15
+       Fresh strsim v0.10.0
+       Fresh ident_case v1.0.1
+       Fresh powerfmt v0.2.0
+       Fresh tinystr v0.7.6
+       Fresh icu_collections v1.5.0
+       Fresh secp256k1 v0.29.1
+       Fresh darling_core v0.13.4
+       Fresh base58ck v0.1.0
+       Fresh ring v0.17.10
+       Fresh hex_lit v0.1.1
+       Fresh deranged v0.3.11
+       Fresh hyper-util v0.1.10
+       Fresh bitcoin-units v0.1.2
+       Fresh num-conv v0.1.0
+       Fresh base64 v0.21.7
+       Fresh time-core v0.1.2
+       Fresh icu_locid v1.5.0
+       Fresh bech32 v0.11.0
+       Fresh time v0.3.37
+       Fresh serde v1.0.218
+       Fresh darling_macro v0.13.4
+       Fresh zstd-sys v2.0.14+zstd.1.5.7
+       Fresh universal-hash v0.5.1
+       Fresh digest v0.9.0
+       Fresh rustls-pemfile v2.2.0
+       Fresh webpki-roots v0.26.8
+       Fresh icu_provider v1.5.0
+       Fresh bitcoin v0.32.5
+       Fresh lazy_static v1.5.0
+       Fresh base64ct v1.6.0
+       Fresh rand_core v0.6.4
+       Fresh adler2 v2.0.0
+       Fresh poly1305 v0.8.0
+       Fresh toml v0.5.11
+       Fresh darling v0.13.4
+       Fresh zstd-safe v5.0.2+zstd.1.5.2
+       Fresh bzip2-sys v0.1.12+1.0.8
+       Fresh chacha20 v0.9.1
+       Fresh icu_locid_transform v1.5.0
+       Fresh miniz_oxide v0.8.4
+       Fresh rustls v0.23.23
+       Fresh rustls v0.22.4
+       Fresh password-hash v0.4.2
+       Fresh rustls-webpki v0.101.7
+       Fresh sct v0.7.1
+       Fresh polyval v0.5.3
+       Fresh sha2 v0.10.8
+       Fresh hmac v0.12.1
+       Fresh http-body-util v0.1.2
+       Fresh futures-executor v0.3.31
+       Fresh aead v0.5.2
+       Fresh cipher v0.4.4
+       Fresh icu_properties v1.5.1
+       Fresh aead v0.4.3
+       Fresh crypto-mac v0.11.0
+       Fresh crc32fast v1.4.2
+       Fresh cpufeatures v0.1.5
+       Fresh regex-syntax v0.8.5
+       Fresh hex v0.4.3
+       Fresh base64 v0.22.1
+       Fresh regex-syntax v0.6.29
+       Fresh log v0.4.26
+       Fresh chacha20poly1305 v0.10.1
+       Fresh pbkdf2 v0.11.0
+       Fresh aes v0.8.4
+       Fresh ghash v0.4.4
+       Fresh icu_normalizer v1.5.0
+       Fresh hmac v0.11.0
+       Fresh rustls v0.21.12
+       Fresh regex-automata v0.1.10
+       Fresh chacha20 v0.7.1
+       Fresh flate2 v1.0.35
+       Fresh regex-automata v0.4.9
+       Fresh tokio-rustls v0.26.1
+       Fresh anyhow v1.0.96
+       Fresh xattr v1.4.0
+       Fresh futures v0.3.31
+       Fresh zstd v0.11.2+zstd.1.5.2
+       Fresh serde_with_macros v1.5.2
+       Fresh idna_adapter v1.2.0
+       Fresh bzip2 v0.4.4
+       Fresh aes v0.7.5
+       Fresh ctr v0.7.0
+       Fresh hkdf v0.12.4
+       Fresh poly1305 v0.7.2
+       Fresh sha1 v0.10.6
+       Fresh tokio-util v0.7.13
+       Fresh block-buffer v0.9.0
+       Fresh filetime v0.2.25
+       Fresh sync_wrapper v1.0.2
+       Fresh tower-layer v0.3.3
+       Fresh linux-raw-sys v0.4.15
+       Fresh openssl-probe v0.1.6
+       Fresh constant_time_eq v0.1.5
+       Fresh webpki-roots v0.25.4
+       Fresh idna v1.0.3
+       Fresh utf-8 v0.7.6
+       Fresh data-encoding v2.8.0
+       Fresh overload v0.1.1
+       Fresh tower v0.5.2
+       Fresh chacha20poly1305 v0.8.0
+       Fresh rustix v0.38.44
+       Fresh zip v0.6.6
+       Fresh tar v0.4.43
+       Fresh aes-gcm v0.9.2
+       Fresh bitcoin-hpke v0.13.0
+       Fresh rustls-native-certs v0.7.3
+       Fresh sha2 v0.9.9
+       Fresh minreq v2.13.2
+       Fresh serde_with v1.14.0
+       Fresh url v2.5.4
+       Fresh nu-ansi-term v0.46.0
+       Fresh matchers v0.1.0
+       Fresh regex v1.11.1
+       Fresh hyper-rustls v0.27.5
+       Fresh hkdf v0.11.0
+       Fresh tokio-rustls v0.25.0
+       Fresh sharded-slab v0.1.7
+       Fresh serde_urlencoded v0.7.1
+       Fresh tracing-log v0.2.0
+       Fresh bitcoin_hashes v0.14.0
+       Fresh thread_local v1.1.8
+       Fresh base64 v0.13.1
+       Fresh mime v0.3.17
+       Fresh tungstenite v0.21.0
+       Fresh percent-encoding-rfc3986 v0.1.3
+       Fresh ipnet v2.11.0
+       Fresh hyper-rustls v0.26.0
+       Fresh tracing-subscriber v0.3.19
+       Fresh jsonrpc v0.18.0
+       Fresh bitcoin-ohttp v0.6.0
+       Fresh getrandom v0.3.1
+       Fresh bhttp v0.5.1
+       Fresh bollard-stubs v1.42.0-rc.3
+       Fresh combine v4.6.7
+       Fresh bitcoincore-rpc-json v0.19.0
+       Fresh async-trait v0.1.86
+       Fresh socket2 v0.4.10
+       Fresh untrusted v0.7.1
+       Fresh bitcoin_uri v0.1.0
+       Fresh tokio-tungstenite v0.21.0
+       Fresh reqwest v0.12.12
+       Fresh home v0.5.11
+       Fresh either v1.13.0
+       Fresh fastrand v2.3.0
+       Fresh spin v0.5.2
+       Fresh sha1_smol v1.0.1
+       Fresh bitcoincore-rpc v0.19.0
+       Fresh testcontainers v0.15.0
+       Fresh pem v3.0.5
+       Fresh yasna v0.5.2
+       Fresh redis v0.23.3
+       Fresh which v4.4.2
+       Dirty payjoin v0.22.0 (/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/payjoin): the file `payjoin/src/send/mod.rs` has changed (1740170137.696453027s, 2s after last build at 1740170135.575485846s)
+   Compiling payjoin v0.22.0 (/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/payjoin)
+       Fresh hyper-tungstenite v0.13.0
+       Fresh tempfile v3.17.1
+       Fresh ring v0.16.20
+       Fresh testcontainers-modules v0.3.7
+       Fresh rcgen v0.11.3
+       Fresh ohttp-relay v0.0.9
+       Fresh bitcoind v0.36.1
+     Running `/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/rustc --crate-name payjoin --edition=2021 payjoin/src/lib.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --crate-type lib --emit=dep-info,metadata,link -C embed-bitcode=no -C debuginfo=2 --cfg 'feature="_core"' --cfg 'feature="_danger-local-https"' --cfg 'feature="bhttp"' --cfg 'feature="bitcoin_uri"' --cfg 'feature="default"' --cfg 'feature="directory"' --cfg 'feature="hpke"' --cfg 'feature="io"' --cfg 'feature="ohttp"' --cfg 'feature="reqwest"' --cfg 'feature="rustls"' --cfg 'feature="serde"' --cfg 'feature="serde_json"' --cfg 'feature="url"' --cfg 'feature="v2"' --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values("_core", "_danger-local-https", "bhttp", "bitcoin_uri", "default", "directory", "hpke", "io", "ohttp", "psbt-merge", "reqwest", "rustls", "serde", "serde_json", "url", "v1", "v2"))' -C metadata=76501b9a61e507b2 -C extra-filename=-ae03882f01e95265 --out-dir /tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/deps -C incremental=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/incremental -L dependency=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/deps --extern bhttp=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/deps/libbhttp-2746a5453f8d471b.rmeta --extern bitcoin=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/deps/libbitcoin-298b90ba178a15f0.rmeta --extern hpke=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/deps/libbitcoin_hpke-2a6b0ab7a2086e1f.rmeta --extern ohttp=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/deps/libbitcoin_ohttp-cadfadfde682ada1.rmeta --extern bitcoin_uri=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/deps/libbitcoin_uri-ebf62d20b213fcfb.rmeta --extern http=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/deps/libhttp-6e597beb424be4c1.rmeta --extern log=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/deps/liblog-ac53f5b25f3b83de.rmeta --extern reqwest=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/deps/libreqwest-620badd69271381e.rmeta --extern rustls=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/deps/librustls-7cb3998621e65660.rmeta --extern serde=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/deps/libserde-a4d3793b6b2fca6b.rmeta --extern serde_json=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/deps/libserde_json-a6b8ab449c3ddbb1.rmeta --extern url=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/deps/liburl-c0e1670478d1bf44.rmeta -L native=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/build/secp256k1-sys-b2b0a24d6c197092/out -L native=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/build/ring-bf86b95756b91634/out`
+error[E0271]: type mismatch resolving `<[(); 1] as IntoIterator>::Item == Result<_, InternalProposalError>`
+   --> payjoin/src/send/mod.rs:202:35
+    |
+202 |         InternalResult::from_iter([()]) /* ~ changed by cargo-mutants ~ */
+    |         ------------------------- ^^^^ expected `Result<_, InternalProposalError>`, found `()`
+    |         |
+    |         required by a bound introduced by this call
+    |
+    = note:   expected enum `std::result::Result<_, send::error::InternalProposalError>`
+            found unit type `()`
+note: required by a bound in `std::iter::FromIterator::from_iter`
+   --> /home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/iter/traits/collect.rs:152:34
+    |
+152 |     fn from_iter<T: IntoIterator<Item = A>>(iter: T) -> Self;
+    |                                  ^^^^^^^^ required by this bound in `FromIterator::from_iter`
+
+For more information about this error, try `rustc --explain E0271`.
+error: could not compile `payjoin` (lib) due to 1 previous error
+
+Caused by:
+  process didn't exit successfully: `/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/rustc --crate-name payjoin --edition=2021 payjoin/src/lib.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --crate-type lib --emit=dep-info,metadata,link -C embed-bitcode=no -C debuginfo=2 --cfg 'feature="_core"' --cfg 'feature="_danger-local-https"' --cfg 'feature="bhttp"' --cfg 'feature="bitcoin_uri"' --cfg 'feature="default"' --cfg 'feature="directory"' --cfg 'feature="hpke"' --cfg 'feature="io"' --cfg 'feature="ohttp"' --cfg 'feature="reqwest"' --cfg 'feature="rustls"' --cfg 'feature="serde"' --cfg 'feature="serde_json"' --cfg 'feature="url"' --cfg 'feature="v2"' --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values("_core", "_danger-local-https", "bhttp", "bitcoin_uri", "default", "directory", "hpke", "io", "ohttp", "psbt-merge", "reqwest", "rustls", "serde", "serde_json", "url", "v1", "v2"))' -C metadata=76501b9a61e507b2 -C extra-filename=-ae03882f01e95265 --out-dir /tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/deps -C incremental=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/incremental -L dependency=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/deps --extern bhttp=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/deps/libbhttp-2746a5453f8d471b.rmeta --extern bitcoin=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/deps/libbitcoin-298b90ba178a15f0.rmeta --extern hpke=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/deps/libbitcoin_hpke-2a6b0ab7a2086e1f.rmeta --extern ohttp=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/deps/libbitcoin_ohttp-cadfadfde682ada1.rmeta --extern bitcoin_uri=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/deps/libbitcoin_uri-ebf62d20b213fcfb.rmeta --extern http=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/deps/libhttp-6e597beb424be4c1.rmeta --extern log=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/deps/liblog-ac53f5b25f3b83de.rmeta --extern reqwest=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/deps/libreqwest-620badd69271381e.rmeta --extern rustls=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/deps/librustls-7cb3998621e65660.rmeta --extern serde=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/deps/libserde-a4d3793b6b2fca6b.rmeta --extern serde_json=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/deps/libserde_json-a6b8ab449c3ddbb1.rmeta --extern url=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/deps/liburl-c0e1670478d1bf44.rmeta -L native=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/build/secp256k1-sys-b2b0a24d6c197092/out -L native=/tmp/cargo-mutants-rust-payjoin-LfNyix.tmp/target/debug/build/ring-bf86b95756b91634/out` (exit status: 1)
+
+*** result: Failure(101)

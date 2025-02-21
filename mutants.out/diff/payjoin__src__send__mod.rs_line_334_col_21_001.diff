@@ -1,0 +1,21 @@
+--- payjoin/src/send/mod.rs
++++ replace < with == in check_fee_output_amount
+@@ -326,17 +326,17 @@
+ }
+ 
+ /// Ensure that an additional fee output is sufficient to pay for the specified additional fee
+ fn check_fee_output_amount(
+     output: &TxOut,
+     fee: bitcoin::Amount,
+     clamp_fee_contribution: bool,
+ ) -> Result<bitcoin::Amount, InternalBuildSenderError> {
+-    if output.value < fee {
++    if output.value == /* ~ changed by cargo-mutants ~ */ fee {
+         if clamp_fee_contribution {
+             Ok(output.value)
+         } else {
+             Err(InternalBuildSenderError::FeeOutputValueLowerThanFeeContribution)
+         }
+     } else {
+         Ok(fee)
+     }

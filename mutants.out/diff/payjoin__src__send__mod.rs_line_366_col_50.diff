@@ -1,0 +1,21 @@
+--- payjoin/src/send/mod.rs
++++ replace != with == in find_change_index
+@@ -358,17 +358,17 @@
+         (2, _) => (),
+         _ => return Err(InternalBuildSenderError::AmbiguousChangeOutput),
+     }
+     let (index, output) = psbt
+         .unsigned_tx
+         .output
+         .iter()
+         .enumerate()
+-        .find(|(_, output)| output.script_pubkey != *payee)
++        .find(|(_, output)| output.script_pubkey == /* ~ changed by cargo-mutants ~ */ *payee)
+         .ok_or(InternalBuildSenderError::MultiplePayeeOutputs)?;
+ 
+     Ok(Some(AdditionalFeeContribution {
+         max_amount: check_fee_output_amount(output, fee, clamp_fee_contribution)?,
+         vout: index,
+     }))
+ }
+ 

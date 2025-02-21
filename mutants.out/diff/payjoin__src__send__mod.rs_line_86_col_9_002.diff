@@ -1,0 +1,62 @@
+--- payjoin/src/send/mod.rs
++++ replace PsbtContext::check_fees -> InternalResult<()> with InternalResult::from_iter([()])
+@@ -78,58 +78,17 @@
+         self.check_inputs(&proposal)?;
+         let contributed_fee = self.check_outputs(&proposal)?;
+         self.restore_original_utxos(&mut proposal)?;
+         self.check_fees(&proposal, contributed_fee)?;
+         Ok(proposal)
+     }
+ 
+     fn check_fees(&self, proposal: &Psbt, contributed_fee: Amount) -> InternalResult<()> {
+-        let proposed_fee = proposal.fee().map_err(InternalProposalError::Psbt)?;
+-        let original_fee = self.original_psbt.fee().map_err(InternalProposalError::Psbt)?;
+-        ensure!(original_fee <= proposed_fee, AbsoluteFeeDecreased);
+-        ensure!(contributed_fee <= proposed_fee - original_fee, PayeeTookContributedFee);
+-        let original_weight = self.original_psbt.clone().extract_tx_unchecked_fee_rate().weight();
+-        let original_fee_rate = original_fee / original_weight;
+-        let original_spks = self
+-            .original_psbt
+-            .input_pairs()
+-            .map(|input_pair| {
+-                input_pair
+-                    .previous_txout()
+-                    .map_err(InternalProposalError::PrevTxOut)
+-                    .map(|txout| txout.script_pubkey.clone())
+-            })
+-            .collect::<InternalResult<Vec<ScriptBuf>>>()?;
+-        let additional_input_weight = proposal.input_pairs().try_fold(
+-            Weight::ZERO,
+-            |acc, input_pair| -> InternalResult<Weight> {
+-                let spk = &input_pair
+-                    .previous_txout()
+-                    .map_err(InternalProposalError::PrevTxOut)?
+-                    .script_pubkey;
+-                if original_spks.contains(spk) {
+-                    Ok(acc)
+-                } else {
+-                    let weight = input_pair
+-                        .expected_input_weight()
+-                        .map_err(InternalProposalError::InputWeight)?;
+-                    Ok(acc + weight)
+-                }
+-            },
+-        )?;
+-        ensure!(
+-            contributed_fee <= original_fee_rate * additional_input_weight,
+-            FeeContributionPaysOutputSizeIncrease
+-        );
+-        if self.min_fee_rate > FeeRate::ZERO {
+-            let proposed_weight = proposal.clone().extract_tx_unchecked_fee_rate().weight();
+-            ensure!(proposed_fee / proposed_weight >= self.min_fee_rate, FeeRateBelowMinimum);
+-        }
+-        Ok(())
++        InternalResult::from_iter([()]) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Check that the version and lock time are the same as in the original PSBT.
+     fn basic_checks(&self, proposal: &Psbt) -> InternalResult<()> {
+         check_eq!(
+             proposal.unsigned_tx.version,
+             self.original_psbt.unsigned_tx.version,
+             VersionsDontMatch

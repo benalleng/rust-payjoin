@@ -1,0 +1,21 @@
+--- payjoin/src/send/mod.rs
++++ replace == with != in PsbtContext::check_outputs
+@@ -254,17 +254,17 @@
+                             || (proposed_txout.script_pubkey == original_output.script_pubkey
+                                 && proposed_txout.value >= original_output.value),
+                         DisallowedOutputSubstitution
+                     );
+                     original_outputs.next();
+                 }
+                 // our output
+                 (Some((_original_output_index, original_output)), _)
+-                    if proposed_txout.script_pubkey == original_output.script_pubkey =>
++                    if proposed_txout.script_pubkey != /* ~ changed by cargo-mutants ~ */ original_output.script_pubkey =>
+                 {
+                     ensure!(proposed_txout.value >= original_output.value, OutputValueDecreased);
+                     original_outputs.next();
+                 }
+                 // additional output
+                 _ => (),
+             }
+         }

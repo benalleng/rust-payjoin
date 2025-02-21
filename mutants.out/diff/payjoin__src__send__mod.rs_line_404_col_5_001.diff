@@ -1,0 +1,26 @@
+--- payjoin/src/send/mod.rs
++++ replace determine_fee_contribution -> Result<Option<AdditionalFeeContribution>, InternalBuildSenderError> with Ok(None)
+@@ -396,22 +396,17 @@
+ }
+ 
+ fn determine_fee_contribution(
+     psbt: &Psbt,
+     payee: &Script,
+     fee_contribution: Option<(bitcoin::Amount, Option<usize>)>,
+     clamp_fee_contribution: bool,
+ ) -> Result<Option<AdditionalFeeContribution>, InternalBuildSenderError> {
+-    Ok(match fee_contribution {
+-        Some((fee, None)) => find_change_index(psbt, payee, fee, clamp_fee_contribution)?,
+-        Some((fee, Some(index))) =>
+-            Some(check_change_index(psbt, payee, fee, index, clamp_fee_contribution)?),
+-        None => None,
+-    })
++    Ok(None) /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ fn serialize_url(
+     endpoint: Url,
+     disable_output_substitution: bool,
+     fee_contribution: Option<AdditionalFeeContribution>,
+     min_fee_rate: FeeRate,
+     version: &str,

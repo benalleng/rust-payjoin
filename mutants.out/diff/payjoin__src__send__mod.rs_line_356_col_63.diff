@@ -1,0 +1,21 @@
+--- payjoin/src/send/mod.rs
++++ replace == with != in find_change_index
+@@ -348,17 +348,17 @@
+     payee: &Script,
+     fee: bitcoin::Amount,
+     clamp_fee_contribution: bool,
+ ) -> Result<Option<AdditionalFeeContribution>, InternalBuildSenderError> {
+     match (psbt.unsigned_tx.output.len(), clamp_fee_contribution) {
+         (0, _) => return Err(InternalBuildSenderError::NoOutputs),
+         (1, false) if psbt.unsigned_tx.output[0].script_pubkey == *payee =>
+             return Err(InternalBuildSenderError::FeeOutputValueLowerThanFeeContribution),
+-        (1, true) if psbt.unsigned_tx.output[0].script_pubkey == *payee => return Ok(None),
++        (1, true) if psbt.unsigned_tx.output[0].script_pubkey != /* ~ changed by cargo-mutants ~ */ *payee => return Ok(None),
+         (1, _) => return Err(InternalBuildSenderError::MissingPayeeOutput),
+         (2, _) => (),
+         _ => return Err(InternalBuildSenderError::AmbiguousChangeOutput),
+     }
+     let (index, output) = psbt
+         .unsigned_tx
+         .output
+         .iter()
