@@ -1,0 +1,9 @@
+payjoin/src/send/mod.rs:239:47: replace == with != in PsbtContext::check_outputs
+payjoin/src/send/mod.rs:242:65: replace - with + in PsbtContext::check_outputs
+payjoin/src/send/mod.rs:429:21: replace > with == in serialize_url
+payjoin/src/send/mod.rs:154:54: replace == with != in PsbtContext::check_inputs
+payjoin/src/send/mod.rs:241:45: replace < with > in PsbtContext::check_outputs
+payjoin/src/send/mod.rs:208:50: replace == with != in PsbtContext::restore_original_utxos
+payjoin/src/send/mod.rs:115:28: replace + with - in PsbtContext::check_fees
+payjoin/src/send/mod.rs:238:51: replace == with != in PsbtContext::check_outputs
+payjoin/src/send/mod.rs:241:45: replace < with == in PsbtContext::check_outputs

@@ -8,7 +8,7 @@
       "phase_results": [
         {
           "phase": "Build",
-          "duration": 24.335247836,
+          "duration": 26.642614901,
           "process_status": "Success",
           "argv": [
             "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
@@ -20,7 +20,7 @@
         },
         {
           "phase": "Test",
-          "duration": 0.653431267,
+          "duration": 0.703575933,
           "process_status": "Success",
           "argv": [
             "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
@@ -35,29 +35,82 @@
       "scenario": {
         "Mutant": {
           "package": "payjoin",
-          "file": "payjoin/src/send/v2/mod.rs",
+          "file": "payjoin/src/send/mod.rs",
           "function": {
-            "function_name": "Sender::extract_v2",
-            "return_type": "-> Result<(Request, V2PostContext), CreateRequestError>",
+            "function_name": "PsbtContext::check_fees",
+            "return_type": "-> InternalResult<()>",
             "span": {
               "start": {
-                "line": 133,
+                "line": 85,
                 "column": 5
               },
               "end": {
-                "line": 185,
+                "line": 128,
                 "column": 6
               }
             }
           },
           "span": {
             "start": {
-              "line": 146,
-              "column": 45
+              "line": 115,
+              "column": 28
             },
             "end": {
-              "line": 146,
-              "column": 46
+              "line": 115,
+              "column": 29
+            }
+          },
+          "replacement": "*",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/payjoin__src__send__mod.rs_line_115_col_28.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_115_col_28.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 2.7107823030000002,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::check_fees",
+            "return_type": "-> InternalResult<()>",
+            "span": {
+              "start": {
+                "line": 85,
+                "column": 5
+              },
+              "end": {
+                "line": 128,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 123,
+              "column": 30
+            },
+            "end": {
+              "line": 123,
+              "column": 31
             }
           },
           "replacement": "<",
@@ -65,12 +118,12 @@
         }
       },
       "summary": "MissedMutant",
-      "log_path": "log/payjoin__src__send__v2__mod.rs_line_146_col_45.log",
-      "diff_path": "diff/payjoin__src__send__v2__mod.rs_line_146_col_45.diff",
+      "log_path": "log/payjoin__src__send__mod.rs_line_123_col_30.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_123_col_30.diff",
       "phase_results": [
         {
           "phase": "Build",
-          "duration": 5.233596776,
+          "duration": 5.889114252,
           "process_status": "Success",
           "argv": [
             "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
@@ -82,7 +135,7 @@
         },
         {
           "phase": "Test",
-          "duration": 1.218203216,
+          "duration": 1.36039817,
           "process_status": "Success",
           "argv": [
             "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
@@ -97,254 +150,327 @@
       "scenario": {
         "Mutant": {
           "package": "payjoin",
-          "file": "payjoin/src/send/v2/mod.rs",
+          "file": "payjoin/src/send/mod.rs",
           "function": {
-            "function_name": "SenderBuilder<'a>::build_non_incentivizing",
-            "return_type": "-> Result<Sender, BuildSenderError>",
+            "function_name": "serialize_url",
+            "return_type": "-> Result<Url, url::ParseError>",
             "span": {
               "start": {
-                "line": 104,
+                "line": 412,
+                "column": 1
+              },
+              "end": {
+                "line": 435,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 431,
+              "column": 67
+            },
+            "end": {
+              "line": 431,
+              "column": 68
+            }
+          },
+          "replacement": "*",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/payjoin__src__send__mod.rs_line_431_col_67.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_431_col_67.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 5.099443209,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 1.4119904939999999,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::check_inputs",
+            "return_type": "-> InternalResult<()>",
+            "span": {
+              "start": {
+                "line": 145,
                 "column": 5
               },
               "end": {
-                "line": 116,
+                "line": 196,
                 "column": 6
               }
             }
           },
           "span": {
             "start": {
-              "line": 112,
+              "line": 146,
               "column": 9
             },
             "end": {
-              "line": 115,
-              "column": 11
+              "line": 195,
+              "column": 15
+            }
+          },
+          "replacement": "InternalResult::new(())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/payjoin__src__send__mod.rs_line_146_col_9.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_146_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 1.26193146,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::check_outputs",
+            "return_type": "-> InternalResult<Amount>",
+            "span": {
+              "start": {
+                "line": 221,
+                "column": 5
+              },
+              "end": {
+                "line": 274,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 222,
+              "column": 9
+            },
+            "end": {
+              "line": 273,
+              "column": 28
+            }
+          },
+          "replacement": "InternalResult::new()",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/payjoin__src__send__mod.rs_line_222_col_9.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_222_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 1.3149083400000001,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::check_outputs",
+            "return_type": "-> InternalResult<Amount>",
+            "span": {
+              "start": {
+                "line": 221,
+                "column": 5
+              },
+              "end": {
+                "line": 274,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 239,
+              "column": 47
+            },
+            "end": {
+              "line": 239,
+              "column": 49
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/payjoin__src__send__mod.rs_line_239_col_47.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_239_col_47.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 6.081361975,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 1.355179162,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::check_outputs",
+            "return_type": "-> InternalResult<Amount>",
+            "span": {
+              "start": {
+                "line": 221,
+                "column": 5
+              },
+              "end": {
+                "line": 274,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 242,
+              "column": 65
+            },
+            "end": {
+              "line": 242,
+              "column": 66
+            }
+          },
+          "replacement": "/",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/payjoin__src__send__mod.rs_line_242_col_65.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_242_col_65.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 1.004198921,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "check_fee_output_amount",
+            "return_type": "-> Result<bitcoin::Amount, InternalBuildSenderError>",
+            "span": {
+              "start": {
+                "line": 328,
+                "column": 1
+              },
+              "end": {
+                "line": 343,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 334,
+              "column": 5
+            },
+            "end": {
+              "line": 342,
+              "column": 6
             }
           },
           "replacement": "Ok(Default::default())",
-          "genre": "FnValue"
-        }
-      },
-      "summary": "Unviable",
-      "log_path": "log/payjoin__src__send__v2__mod.rs_line_112_col_9.log",
-      "diff_path": "diff/payjoin__src__send__v2__mod.rs_line_112_col_9.diff",
-      "phase_results": [
-        {
-          "phase": "Build",
-          "duration": 0.813467322,
-          "process_status": {
-            "Failure": 101
-          },
-          "argv": [
-            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
-            "test",
-            "--no-run",
-            "--verbose",
-            "--package=payjoin@0.22.0"
-          ]
-        }
-      ]
-    },
-    {
-      "scenario": {
-        "Mutant": {
-          "package": "payjoin",
-          "file": "payjoin/src/send/v2/mod.rs",
-          "function": {
-            "function_name": "Sender::extract_rs_pubkey",
-            "return_type": "-> Result<HpkePublicKey, crate::uri::url_ext::ParseReceiverPubkeyParamError>",
-            "span": {
-              "start": {
-                "line": 187,
-                "column": 5
-              },
-              "end": {
-                "line": 191,
-                "column": 6
-              }
-            }
-          },
-          "span": {
-            "start": {
-              "line": 190,
-              "column": 9
-            },
-            "end": {
-              "line": 190,
-              "column": 43
-            }
-          },
-          "replacement": "Ok(Default::default())",
-          "genre": "FnValue"
-        }
-      },
-      "summary": "Unviable",
-      "log_path": "log/payjoin__src__send__v2__mod.rs_line_190_col_9.log",
-      "diff_path": "diff/payjoin__src__send__v2__mod.rs_line_190_col_9.diff",
-      "phase_results": [
-        {
-          "phase": "Build",
-          "duration": 0.756008887,
-          "process_status": {
-            "Failure": 101
-          },
-          "argv": [
-            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
-            "test",
-            "--no-run",
-            "--verbose",
-            "--package=payjoin@0.22.0"
-          ]
-        }
-      ]
-    },
-    {
-      "scenario": {
-        "Mutant": {
-          "package": "payjoin",
-          "file": "payjoin/src/send/v2/mod.rs",
-          "function": {
-            "function_name": "Sender::endpoint",
-            "return_type": "-> &Url",
-            "span": {
-              "start": {
-                "line": 193,
-                "column": 5
-              },
-              "end": {
-                "line": 193,
-                "column": 58
-              }
-            }
-          },
-          "span": {
-            "start": {
-              "line": 193,
-              "column": 38
-            },
-            "end": {
-              "line": 193,
-              "column": 56
-            }
-          },
-          "replacement": "&Default::default()",
-          "genre": "FnValue"
-        }
-      },
-      "summary": "Unviable",
-      "log_path": "log/payjoin__src__send__v2__mod.rs_line_193_col_38.log",
-      "diff_path": "diff/payjoin__src__send__v2__mod.rs_line_193_col_38.diff",
-      "phase_results": [
-        {
-          "phase": "Build",
-          "duration": 0.716480151,
-          "process_status": {
-            "Failure": 101
-          },
-          "argv": [
-            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
-            "test",
-            "--no-run",
-            "--verbose",
-            "--package=payjoin@0.22.0"
-          ]
-        }
-      ]
-    },
-    {
-      "scenario": {
-        "Mutant": {
-          "package": "payjoin",
-          "file": "payjoin/src/send/v2/mod.rs",
-          "function": {
-            "function_name": "V2PostContext::process_response",
-            "return_type": "-> Result<V2GetContext, EncapsulationError>",
-            "span": {
-              "start": {
-                "line": 225,
-                "column": 5
-              },
-              "end": {
-                "line": 242,
-                "column": 6
-              }
-            }
-          },
-          "span": {
-            "start": {
-              "line": 226,
-              "column": 9
-            },
-            "end": {
-              "line": 241,
-              "column": 10
-            }
-          },
-          "replacement": "Ok(Default::default())",
-          "genre": "FnValue"
-        }
-      },
-      "summary": "Unviable",
-      "log_path": "log/payjoin__src__send__v2__mod.rs_line_226_col_9.log",
-      "diff_path": "diff/payjoin__src__send__v2__mod.rs_line_226_col_9.diff",
-      "phase_results": [
-        {
-          "phase": "Build",
-          "duration": 0.859821803,
-          "process_status": {
-            "Failure": 101
-          },
-          "argv": [
-            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
-            "test",
-            "--no-run",
-            "--verbose",
-            "--package=payjoin@0.22.0"
-          ]
-        }
-      ]
-    },
-    {
-      "scenario": {
-        "Mutant": {
-          "package": "payjoin",
-          "file": "payjoin/src/send/v2/mod.rs",
-          "function": {
-            "function_name": "V2GetContext::process_response",
-            "return_type": "-> Result<Option<Psbt>, ResponseError>",
-            "span": {
-              "start": {
-                "line": 282,
-                "column": 5
-              },
-              "end": {
-                "line": 308,
-                "column": 6
-              }
-            }
-          },
-          "span": {
-            "start": {
-              "line": 287,
-              "column": 9
-            },
-            "end": {
-              "line": 307,
-              "column": 37
-            }
-          },
-          "replacement": "Ok(None)",
           "genre": "FnValue"
         }
       },
       "summary": "MissedMutant",
-      "log_path": "log/payjoin__src__send__v2__mod.rs_line_287_col_9.log",
-      "diff_path": "diff/payjoin__src__send__v2__mod.rs_line_287_col_9.diff",
+      "log_path": "log/payjoin__src__send__mod.rs_line_334_col_5.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_334_col_5.diff",
       "phase_results": [
         {
           "phase": "Build",
-          "duration": 3.529405421,
+          "duration": 6.535426565,
           "process_status": "Success",
           "argv": [
             "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
@@ -356,7 +482,7 @@
         },
         {
           "phase": "Test",
-          "duration": 0.803321498,
+          "duration": 1.520061559,
           "process_status": "Success",
           "argv": [
             "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
@@ -371,29 +497,303 @@
       "scenario": {
         "Mutant": {
           "package": "payjoin",
-          "file": "payjoin/src/send/v2/mod.rs",
+          "file": "payjoin/src/send/mod.rs",
           "function": {
-            "function_name": "Sender::extract_v2",
-            "return_type": "-> Result<(Request, V2PostContext), CreateRequestError>",
+            "function_name": "PsbtContext::check_outputs",
+            "return_type": "-> InternalResult<Amount>",
             "span": {
               "start": {
-                "line": 133,
+                "line": 221,
                 "column": 5
               },
               "end": {
-                "line": 185,
+                "line": 274,
                 "column": 6
               }
             }
           },
           "span": {
             "start": {
-              "line": 146,
-              "column": 45
+              "line": 222,
+              "column": 9
             },
             "end": {
-              "line": 146,
+              "line": 273,
+              "column": 28
+            }
+          },
+          "replacement": "InternalResult::new(Default::default())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/payjoin__src__send__mod.rs_line_222_col_9_001.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_222_col_9_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 1.12011706,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::restore_original_utxos",
+            "return_type": "-> InternalResult<()>",
+            "span": {
+              "start": {
+                "line": 198,
+                "column": 5
+              },
+              "end": {
+                "line": 219,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 202,
+              "column": 9
+            },
+            "end": {
+              "line": 218,
+              "column": 15
+            }
+          },
+          "replacement": "InternalResult::new()",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/payjoin__src__send__mod.rs_line_202_col_9.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_202_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 1.271783312,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "check_single_payee",
+            "return_type": "-> Result<(), InternalBuildSenderError>",
+            "span": {
+              "start": {
+                "line": 277,
+                "column": 1
+              },
+              "end": {
+                "line": 303,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 286,
+              "column": 33
+            },
+            "end": {
+              "line": 286,
+              "column": 35
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/payjoin__src__send__mod.rs_line_286_col_33.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_286_col_33.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 6.088404015,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 1.360437205,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::check_fees",
+            "return_type": "-> InternalResult<()>",
+            "span": {
+              "start": {
+                "line": 85,
+                "column": 5
+              },
+              "end": {
+                "line": 128,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 91,
               "column": 46
+            },
+            "end": {
+              "line": 91,
+              "column": 47
+            }
+          },
+          "replacement": "%",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/payjoin__src__send__mod.rs_line_91_col_46.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_91_col_46.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.96152509,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::process_proposal",
+            "return_type": "-> InternalResult<Psbt>",
+            "span": {
+              "start": {
+                "line": 76,
+                "column": 5
+              },
+              "end": {
+                "line": 83,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 77,
+              "column": 9
+            },
+            "end": {
+              "line": 82,
+              "column": 21
+            }
+          },
+          "replacement": "InternalResult::new()",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/payjoin__src__send__mod.rs_line_77_col_9.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_77_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 1.010978643,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "check_fee_output_amount",
+            "return_type": "-> Result<bitcoin::Amount, InternalBuildSenderError>",
+            "span": {
+              "start": {
+                "line": 328,
+                "column": 1
+              },
+              "end": {
+                "line": 343,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 334,
+              "column": 21
+            },
+            "end": {
+              "line": 334,
+              "column": 22
             }
           },
           "replacement": "==",
@@ -401,12 +801,12 @@
         }
       },
       "summary": "MissedMutant",
-      "log_path": "log/payjoin__src__send__v2__mod.rs_line_146_col_45_001.log",
-      "diff_path": "diff/payjoin__src__send__v2__mod.rs_line_146_col_45_001.diff",
+      "log_path": "log/payjoin__src__send__mod.rs_line_334_col_21.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_334_col_21.diff",
       "phase_results": [
         {
           "phase": "Build",
-          "duration": 3.983606747,
+          "duration": 5.380206765,
           "process_status": "Success",
           "argv": [
             "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
@@ -418,7 +818,7 @@
         },
         {
           "phase": "Test",
-          "duration": 0.803290897,
+          "duration": 1.5600497949999999,
           "process_status": "Success",
           "argv": [
             "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
@@ -433,42 +833,168 @@
       "scenario": {
         "Mutant": {
           "package": "payjoin",
-          "file": "payjoin/src/send/v2/mod.rs",
+          "file": "payjoin/src/send/mod.rs",
           "function": {
-            "function_name": "Sender::extract_v2",
-            "return_type": "-> Result<(Request, V2PostContext), CreateRequestError>",
+            "function_name": "PsbtContext::check_outputs",
+            "return_type": "-> InternalResult<Amount>",
             "span": {
               "start": {
-                "line": 133,
+                "line": 221,
                 "column": 5
               },
               "end": {
-                "line": 185,
+                "line": 274,
                 "column": 6
               }
             }
           },
           "span": {
             "start": {
-              "line": 141,
+              "line": 239,
+              "column": 21
+            },
+            "end": {
+              "line": 239,
+              "column": 23
+            }
+          },
+          "replacement": "||",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/payjoin__src__send__mod.rs_line_239_col_21.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_239_col_21.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 5.690811709,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 1.5119918,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::check_outputs",
+            "return_type": "-> InternalResult<Amount>",
+            "span": {
+              "start": {
+                "line": 221,
+                "column": 5
+              },
+              "end": {
+                "line": 274,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 242,
+              "column": 65
+            },
+            "end": {
+              "line": 242,
+              "column": 66
+            }
+          },
+          "replacement": "+",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/payjoin__src__send__mod.rs_line_242_col_65_001.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_242_col_65_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 3.582080364,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.753281924,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::check_outputs",
+            "return_type": "-> InternalResult<Amount>",
+            "span": {
+              "start": {
+                "line": 221,
+                "column": 5
+              },
+              "end": {
+                "line": 274,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 222,
               "column": 9
             },
             "end": {
-              "line": 184,
-              "column": 11
+              "line": 273,
+              "column": 28
             }
           },
-          "replacement": "Ok((Default::default(), Default::default()))",
+          "replacement": "InternalResult::from_iter([Default::default()])",
           "genre": "FnValue"
         }
       },
       "summary": "Unviable",
-      "log_path": "log/payjoin__src__send__v2__mod.rs_line_141_col_9.log",
-      "diff_path": "diff/payjoin__src__send__v2__mod.rs_line_141_col_9.diff",
+      "log_path": "log/payjoin__src__send__mod.rs_line_222_col_9_002.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_222_col_9_002.diff",
       "phase_results": [
         {
           "phase": "Build",
-          "duration": 0.553121012,
+          "duration": 0.603259008,
           "process_status": {
             "Failure": 101
           },
@@ -486,42 +1012,1061 @@
       "scenario": {
         "Mutant": {
           "package": "payjoin",
-          "file": "payjoin/src/send/v2/mod.rs",
+          "file": "payjoin/src/send/mod.rs",
           "function": {
-            "function_name": "Sender::extract_v1",
-            "return_type": "-> Result<(Request, v1::V1Context), url::ParseError>",
+            "function_name": "PsbtContext::check_outputs",
+            "return_type": "-> InternalResult<Amount>",
             "span": {
               "start": {
-                "line": 128,
+                "line": 221,
                 "column": 5
               },
               "end": {
-                "line": 131,
+                "line": 274,
                 "column": 6
               }
             }
           },
           "span": {
             "start": {
-              "line": 130,
+              "line": 250,
+              "column": 54
+            },
+            "end": {
+              "line": 250,
+              "column": 56
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/payjoin__src__send__mod.rs_line_250_col_54.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_250_col_54.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 1.964044905,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.854172134,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::restore_original_utxos",
+            "return_type": "-> InternalResult<()>",
+            "span": {
+              "start": {
+                "line": 198,
+                "column": 5
+              },
+              "end": {
+                "line": 219,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 202,
               "column": 9
             },
             "end": {
-              "line": 130,
+              "line": 218,
+              "column": 15
+            }
+          },
+          "replacement": "InternalResult::from_iter([()])",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/payjoin__src__send__mod.rs_line_202_col_9_001.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_202_col_9_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.552800692,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "serialize_url",
+            "return_type": "-> Result<Url, url::ParseError>",
+            "span": {
+              "start": {
+                "line": 412,
+                "column": 1
+              },
+              "end": {
+                "line": 435,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 429,
+              "column": 21
+            },
+            "end": {
+              "line": 429,
+              "column": 22
+            }
+          },
+          "replacement": "==",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/payjoin__src__send__mod.rs_line_429_col_21_001.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_429_col_21_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 69.949808349,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.652163555,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::check_fees",
+            "return_type": "-> InternalResult<()>",
+            "span": {
+              "start": {
+                "line": 85,
+                "column": 5
+              },
+              "end": {
+                "line": 128,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 86,
+              "column": 9
+            },
+            "end": {
+              "line": 127,
+              "column": 15
+            }
+          },
+          "replacement": "InternalResult::from(())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/payjoin__src__send__mod.rs_line_86_col_9.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_86_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.552111772,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "serialize_url",
+            "return_type": "-> Result<Url, url::ParseError>",
+            "span": {
+              "start": {
+                "line": 412,
+                "column": 1
+              },
+              "end": {
+                "line": 435,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 429,
+              "column": 21
+            },
+            "end": {
+              "line": 429,
+              "column": 22
+            }
+          },
+          "replacement": "<",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/payjoin__src__send__mod.rs_line_429_col_21.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_429_col_21.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 71.25373635,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.752606888,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "determine_fee_contribution",
+            "return_type": "-> Result<Option<AdditionalFeeContribution>, InternalBuildSenderError>",
+            "span": {
+              "start": {
+                "line": 398,
+                "column": 1
+              },
+              "end": {
+                "line": 410,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 404,
+              "column": 5
+            },
+            "end": {
+              "line": 409,
+              "column": 7
+            }
+          },
+          "replacement": "Ok(None)",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/payjoin__src__send__mod.rs_line_404_col_5.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_404_col_5.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 1.907285542,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.753052211,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::check_inputs",
+            "return_type": "-> InternalResult<()>",
+            "span": {
+              "start": {
+                "line": 145,
+                "column": 5
+              },
+              "end": {
+                "line": 196,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 154,
+              "column": 54
+            },
+            "end": {
+              "line": 154,
+              "column": 56
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/payjoin__src__send__mod.rs_line_154_col_54.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_154_col_54.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 1.705284678,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.652264392,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "check_single_payee",
+            "return_type": "-> Result<(), InternalBuildSenderError>",
+            "span": {
+              "start": {
+                "line": 277,
+                "column": 1
+              },
+              "end": {
+                "line": 303,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 288,
+              "column": 33
+            },
+            "end": {
+              "line": 288,
+              "column": 35
+            }
+          },
+          "replacement": "==",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/payjoin__src__send__mod.rs_line_288_col_33.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_288_col_33.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 1.8040675830000001,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.803293982,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "find_change_index",
+            "return_type": "-> Result<Option<AdditionalFeeContribution>, InternalBuildSenderError>",
+            "span": {
+              "start": {
+                "line": 345,
+                "column": 1
+              },
+              "end": {
+                "line": 373,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 354,
+              "column": 64
+            },
+            "end": {
+              "line": 354,
+              "column": 66
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/payjoin__src__send__mod.rs_line_354_col_64.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_354_col_64.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 73.91483084,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.752417433,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::check_outputs",
+            "return_type": "-> InternalResult<Amount>",
+            "span": {
+              "start": {
+                "line": 221,
+                "column": 5
+              },
+              "end": {
+                "line": 274,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 241,
+              "column": 45
+            },
+            "end": {
+              "line": 241,
+              "column": 46
+            }
+          },
+          "replacement": ">",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/payjoin__src__send__mod.rs_line_241_col_45.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_241_col_45.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 1.914227666,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.602203982,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::check_inputs",
+            "return_type": "-> InternalResult<()>",
+            "span": {
+              "start": {
+                "line": 145,
+                "column": 5
+              },
+              "end": {
+                "line": 196,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 146,
+              "column": 9
+            },
+            "end": {
+              "line": 195,
+              "column": 15
+            }
+          },
+          "replacement": "InternalResult::from(())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/payjoin__src__send__mod.rs_line_146_col_9_001.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_146_col_9_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.502466018,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "clear_unneeded_fields",
+            "return_type": "",
+            "span": {
+              "start": {
+                "line": 305,
+                "column": 1
+              },
+              "end": {
+                "line": 326,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 306,
+              "column": 5
+            },
+            "end": {
+              "line": 325,
+              "column": 6
+            }
+          },
+          "replacement": "()",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/payjoin__src__send__mod.rs_line_306_col_5.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_306_col_5.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 1.6603038049999999,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.852244063,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::check_fees",
+            "return_type": "-> InternalResult<()>",
+            "span": {
+              "start": {
+                "line": 85,
+                "column": 5
+              },
+              "end": {
+                "line": 128,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 86,
+              "column": 9
+            },
+            "end": {
+              "line": 127,
+              "column": 15
+            }
+          },
+          "replacement": "InternalResult::from_iter([()])",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/payjoin__src__send__mod.rs_line_86_col_9_001.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_86_col_9_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.603133402,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::restore_original_utxos",
+            "return_type": "-> InternalResult<()>",
+            "span": {
+              "start": {
+                "line": 198,
+                "column": 5
+              },
+              "end": {
+                "line": 219,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 208,
+              "column": 50
+            },
+            "end": {
+              "line": 208,
+              "column": 52
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/payjoin__src__send__mod.rs_line_208_col_50.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_208_col_50.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 1.80460604,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.704203188,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::basic_checks",
+            "return_type": "-> InternalResult<()>",
+            "span": {
+              "start": {
+                "line": 130,
+                "column": 5
+              },
+              "end": {
+                "line": 143,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 132,
+              "column": 9
+            },
+            "end": {
+              "line": 142,
+              "column": 15
+            }
+          },
+          "replacement": "InternalResult::from(())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/payjoin__src__send__mod.rs_line_132_col_9.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_132_col_9.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.504838288,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::check_fees",
+            "return_type": "-> InternalResult<()>",
+            "span": {
+              "start": {
+                "line": 85,
+                "column": 5
+              },
+              "end": {
+                "line": 128,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 115,
+              "column": 28
+            },
+            "end": {
+              "line": 115,
               "column": 29
             }
           },
-          "replacement": "Ok((Default::default(), Default::default()))",
+          "replacement": "-",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/payjoin__src__send__mod.rs_line_115_col_28_001.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_115_col_28_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 1.8067524069999998,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.652945917,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "find_change_index",
+            "return_type": "-> Result<Option<AdditionalFeeContribution>, InternalBuildSenderError>",
+            "span": {
+              "start": {
+                "line": 345,
+                "column": 1
+              },
+              "end": {
+                "line": 373,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 356,
+              "column": 63
+            },
+            "end": {
+              "line": 356,
+              "column": 65
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/payjoin__src__send__mod.rs_line_356_col_63.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_356_col_63.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 1.855621408,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.803826136,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::basic_checks",
+            "return_type": "-> InternalResult<()>",
+            "span": {
+              "start": {
+                "line": 130,
+                "column": 5
+              },
+              "end": {
+                "line": 143,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 132,
+              "column": 9
+            },
+            "end": {
+              "line": 142,
+              "column": 15
+            }
+          },
+          "replacement": "InternalResult::new()",
           "genre": "FnValue"
         }
       },
       "summary": "Unviable",
-      "log_path": "log/payjoin__src__send__v2__mod.rs_line_130_col_9.log",
-      "diff_path": "diff/payjoin__src__send__v2__mod.rs_line_130_col_9.diff",
+      "log_path": "log/payjoin__src__send__mod.rs_line_132_col_9_001.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_132_col_9_001.diff",
       "phase_results": [
         {
           "phase": "Build",
-          "duration": 0.451786938,
+          "duration": 0.55260277,
           "process_status": {
             "Failure": 101
           },
@@ -539,29 +2084,1280 @@
       "scenario": {
         "Mutant": {
           "package": "payjoin",
-          "file": "payjoin/src/send/v2/mod.rs",
+          "file": "payjoin/src/send/mod.rs",
           "function": {
-            "function_name": "V2GetContext::process_response",
-            "return_type": "-> Result<Option<Psbt>, ResponseError>",
+            "function_name": "PsbtContext::check_outputs",
+            "return_type": "-> InternalResult<Amount>",
             "span": {
               "start": {
-                "line": 282,
+                "line": 221,
                 "column": 5
               },
               "end": {
-                "line": 308,
+                "line": 274,
                 "column": 6
               }
             }
           },
           "span": {
             "start": {
-              "line": 287,
+              "line": 238,
+              "column": 51
+            },
+            "end": {
+              "line": 238,
+              "column": 53
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/payjoin__src__send__mod.rs_line_238_col_51.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_238_col_51.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 2.006444959,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.802255696,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "find_change_index",
+            "return_type": "-> Result<Option<AdditionalFeeContribution>, InternalBuildSenderError>",
+            "span": {
+              "start": {
+                "line": 345,
+                "column": 1
+              },
+              "end": {
+                "line": 373,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 366,
+              "column": 50
+            },
+            "end": {
+              "line": 366,
+              "column": 52
+            }
+          },
+          "replacement": "==",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/payjoin__src__send__mod.rs_line_366_col_50.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_366_col_50.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 2.006057063,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.902656771,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::check_outputs",
+            "return_type": "-> InternalResult<Amount>",
+            "span": {
+              "start": {
+                "line": 221,
+                "column": 5
+              },
+              "end": {
+                "line": 274,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 241,
+              "column": 45
+            },
+            "end": {
+              "line": 241,
+              "column": 46
+            }
+          },
+          "replacement": "==",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/payjoin__src__send__mod.rs_line_241_col_45_001.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_241_col_45_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 1.8566222589999999,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.652753667,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::process_proposal",
+            "return_type": "-> InternalResult<Psbt>",
+            "span": {
+              "start": {
+                "line": 76,
+                "column": 5
+              },
+              "end": {
+                "line": 83,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 77,
               "column": 9
             },
             "end": {
-              "line": 307,
-              "column": 37
+              "line": 82,
+              "column": 21
+            }
+          },
+          "replacement": "InternalResult::from_iter([Default::default()])",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/payjoin__src__send__mod.rs_line_77_col_9_001.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_77_col_9_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.501928761,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "check_single_payee",
+            "return_type": "-> Result<(), InternalBuildSenderError>",
+            "span": {
+              "start": {
+                "line": 277,
+                "column": 1
+              },
+              "end": {
+                "line": 303,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 284,
+              "column": 5
+            },
+            "end": {
+              "line": 302,
+              "column": 6
+            }
+          },
+          "replacement": "Ok(())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/payjoin__src__send__mod.rs_line_284_col_5.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_284_col_5.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 1.9542037159999999,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.90230372,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::check_inputs",
+            "return_type": "-> InternalResult<()>",
+            "span": {
+              "start": {
+                "line": 145,
+                "column": 5
+              },
+              "end": {
+                "line": 196,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 146,
+              "column": 9
+            },
+            "end": {
+              "line": 195,
+              "column": 15
+            }
+          },
+          "replacement": "InternalResult::from_iter([()])",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/payjoin__src__send__mod.rs_line_146_col_9_002.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_146_col_9_002.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.45159521,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "check_change_index",
+            "return_type": "-> Result<AdditionalFeeContribution, InternalBuildSenderError>",
+            "span": {
+              "start": {
+                "line": 375,
+                "column": 1
+              },
+              "end": {
+                "line": 396,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 384,
+              "column": 5
+            },
+            "end": {
+              "line": 395,
+              "column": 7
+            }
+          },
+          "replacement": "Ok(Default::default())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/payjoin__src__send__mod.rs_line_384_col_5.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_384_col_5.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.651969758,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::restore_original_utxos",
+            "return_type": "-> InternalResult<()>",
+            "span": {
+              "start": {
+                "line": 198,
+                "column": 5
+              },
+              "end": {
+                "line": 219,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 202,
+              "column": 9
+            },
+            "end": {
+              "line": 218,
+              "column": 15
+            }
+          },
+          "replacement": "InternalResult::new(())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/payjoin__src__send__mod.rs_line_202_col_9_002.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_202_col_9_002.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.703418528,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "check_change_index",
+            "return_type": "-> Result<AdditionalFeeContribution, InternalBuildSenderError>",
+            "span": {
+              "start": {
+                "line": 375,
+                "column": 1
+              },
+              "end": {
+                "line": 396,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 389,
+              "column": 29
+            },
+            "end": {
+              "line": 389,
+              "column": 31
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/payjoin__src__send__mod.rs_line_389_col_29.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_389_col_29.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 1.90570639,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.903108656,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::process_proposal",
+            "return_type": "-> InternalResult<Psbt>",
+            "span": {
+              "start": {
+                "line": 76,
+                "column": 5
+              },
+              "end": {
+                "line": 83,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 77,
+              "column": 9
+            },
+            "end": {
+              "line": 82,
+              "column": 21
+            }
+          },
+          "replacement": "InternalResult::from(Default::default())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/payjoin__src__send__mod.rs_line_77_col_9_002.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_77_col_9_002.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.452163604,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "find_change_index",
+            "return_type": "-> Result<Option<AdditionalFeeContribution>, InternalBuildSenderError>",
+            "span": {
+              "start": {
+                "line": 345,
+                "column": 1
+              },
+              "end": {
+                "line": 373,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 352,
+              "column": 5
+            },
+            "end": {
+              "line": 372,
+              "column": 8
+            }
+          },
+          "replacement": "Ok(None)",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/payjoin__src__send__mod.rs_line_352_col_5.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_352_col_5.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 2.256463968,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.802694907,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::check_fees",
+            "return_type": "-> InternalResult<()>",
+            "span": {
+              "start": {
+                "line": 85,
+                "column": 5
+              },
+              "end": {
+                "line": 128,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 91,
+              "column": 46
+            },
+            "end": {
+              "line": 91,
+              "column": 47
+            }
+          },
+          "replacement": "*",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/payjoin__src__send__mod.rs_line_91_col_46_001.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_91_col_46_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.602851522,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "check_fee_output_amount",
+            "return_type": "-> Result<bitcoin::Amount, InternalBuildSenderError>",
+            "span": {
+              "start": {
+                "line": 328,
+                "column": 1
+              },
+              "end": {
+                "line": 343,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 334,
+              "column": 21
+            },
+            "end": {
+              "line": 334,
+              "column": 22
+            }
+          },
+          "replacement": ">",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/payjoin__src__send__mod.rs_line_334_col_21_001.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_334_col_21_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 1.9594075260000001,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.90265719,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::process_proposal",
+            "return_type": "-> InternalResult<Psbt>",
+            "span": {
+              "start": {
+                "line": 76,
+                "column": 5
+              },
+              "end": {
+                "line": 83,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 77,
+              "column": 9
+            },
+            "end": {
+              "line": 82,
+              "column": 21
+            }
+          },
+          "replacement": "InternalResult::new(Default::default())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/payjoin__src__send__mod.rs_line_77_col_9_003.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_77_col_9_003.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.553053713,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::check_outputs",
+            "return_type": "-> InternalResult<Amount>",
+            "span": {
+              "start": {
+                "line": 221,
+                "column": 5
+              },
+              "end": {
+                "line": 274,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 262,
+              "column": 53
+            },
+            "end": {
+              "line": 262,
+              "column": 55
+            }
+          },
+          "replacement": "!=",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/payjoin__src__send__mod.rs_line_262_col_53.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_262_col_53.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 2.112281145,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.852353164,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::check_outputs",
+            "return_type": "-> InternalResult<Amount>",
+            "span": {
+              "start": {
+                "line": 221,
+                "column": 5
+              },
+              "end": {
+                "line": 274,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 222,
+              "column": 9
+            },
+            "end": {
+              "line": 273,
+              "column": 28
+            }
+          },
+          "replacement": "InternalResult::from(Default::default())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/payjoin__src__send__mod.rs_line_222_col_9_003.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_222_col_9_003.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.451866998,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::check_fees",
+            "return_type": "-> InternalResult<()>",
+            "span": {
+              "start": {
+                "line": 85,
+                "column": 5
+              },
+              "end": {
+                "line": 128,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 86,
+              "column": 9
+            },
+            "end": {
+              "line": 127,
+              "column": 15
+            }
+          },
+          "replacement": "InternalResult::new(())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/payjoin__src__send__mod.rs_line_86_col_9_002.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_86_col_9_002.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.652591583,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::check_inputs",
+            "return_type": "-> InternalResult<()>",
+            "span": {
+              "start": {
+                "line": 145,
+                "column": 5
+              },
+              "end": {
+                "line": 196,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 146,
+              "column": 9
+            },
+            "end": {
+              "line": 195,
+              "column": 15
+            }
+          },
+          "replacement": "InternalResult::new()",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/payjoin__src__send__mod.rs_line_146_col_9_003.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_146_col_9_003.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.552315652,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::basic_checks",
+            "return_type": "-> InternalResult<()>",
+            "span": {
+              "start": {
+                "line": 130,
+                "column": 5
+              },
+              "end": {
+                "line": 143,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 132,
+              "column": 9
+            },
+            "end": {
+              "line": 142,
+              "column": 15
+            }
+          },
+          "replacement": "InternalResult::from_iter([()])",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/payjoin__src__send__mod.rs_line_132_col_9_002.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_132_col_9_002.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.601999917,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::check_fees",
+            "return_type": "-> InternalResult<()>",
+            "span": {
+              "start": {
+                "line": 85,
+                "column": 5
+              },
+              "end": {
+                "line": 128,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 86,
+              "column": 9
+            },
+            "end": {
+              "line": 127,
+              "column": 15
+            }
+          },
+          "replacement": "InternalResult::new()",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/payjoin__src__send__mod.rs_line_86_col_9_003.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_86_col_9_003.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.451578267,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::check_fees",
+            "return_type": "-> InternalResult<()>",
+            "span": {
+              "start": {
+                "line": 85,
+                "column": 5
+              },
+              "end": {
+                "line": 128,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 123,
+              "column": 30
+            },
+            "end": {
+              "line": 123,
+              "column": 31
+            }
+          },
+          "replacement": "==",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "MissedMutant",
+      "log_path": "log/payjoin__src__send__mod.rs_line_123_col_30_001.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_123_col_30_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 1.91052026,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 0.852646403,
+          "process_status": "Success",
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "PsbtContext::basic_checks",
+            "return_type": "-> InternalResult<()>",
+            "span": {
+              "start": {
+                "line": 130,
+                "column": 5
+              },
+              "end": {
+                "line": 143,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 132,
+              "column": 9
+            },
+            "end": {
+              "line": 142,
+              "column": 15
+            }
+          },
+          "replacement": "InternalResult::new(())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/payjoin__src__send__mod.rs_line_132_col_9_003.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_132_col_9_003.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.551975875,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "determine_fee_contribution",
+            "return_type": "-> Result<Option<AdditionalFeeContribution>, InternalBuildSenderError>",
+            "span": {
+              "start": {
+                "line": 398,
+                "column": 1
+              },
+              "end": {
+                "line": 410,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 404,
+              "column": 5
+            },
+            "end": {
+              "line": 409,
+              "column": 7
             }
           },
           "replacement": "Ok(Some(Default::default()))",
@@ -569,12 +3365,12 @@
         }
       },
       "summary": "Unviable",
-      "log_path": "log/payjoin__src__send__v2__mod.rs_line_287_col_9_001.log",
-      "diff_path": "diff/payjoin__src__send__v2__mod.rs_line_287_col_9_001.diff",
+      "log_path": "log/payjoin__src__send__mod.rs_line_404_col_5_001.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_404_col_5_001.diff",
       "phase_results": [
         {
           "phase": "Build",
-          "duration": 0.452222474,
+          "duration": 0.501958806,
           "process_status": {
             "Failure": 101
           },
@@ -592,29 +3388,135 @@
       "scenario": {
         "Mutant": {
           "package": "payjoin",
-          "file": "payjoin/src/send/v2/mod.rs",
+          "file": "payjoin/src/send/mod.rs",
           "function": {
-            "function_name": "SenderBuilder<'a>::build_recommended",
-            "return_type": "-> Result<Sender, BuildSenderError>",
+            "function_name": "PsbtContext::restore_original_utxos",
+            "return_type": "-> InternalResult<()>",
             "span": {
               "start": {
-                "line": 66,
+                "line": 198,
                 "column": 5
               },
               "end": {
-                "line": 71,
+                "line": 219,
                 "column": 6
               }
             }
           },
           "span": {
             "start": {
-              "line": 67,
+              "line": 202,
               "column": 9
             },
             "end": {
-              "line": 70,
-              "column": 11
+              "line": 218,
+              "column": 15
+            }
+          },
+          "replacement": "InternalResult::from(())",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/payjoin__src__send__mod.rs_line_202_col_9_003.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_202_col_9_003.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.502502324,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "find_change_index",
+            "return_type": "-> Result<Option<AdditionalFeeContribution>, InternalBuildSenderError>",
+            "span": {
+              "start": {
+                "line": 345,
+                "column": 1
+              },
+              "end": {
+                "line": 373,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 352,
+              "column": 5
+            },
+            "end": {
+              "line": 372,
+              "column": 8
+            }
+          },
+          "replacement": "Ok(Some(Default::default()))",
+          "genre": "FnValue"
+        }
+      },
+      "summary": "Unviable",
+      "log_path": "log/payjoin__src__send__mod.rs_line_352_col_5_001.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_352_col_5_001.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 0.552565479,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=payjoin@0.22.0"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "package": "payjoin",
+          "file": "payjoin/src/send/mod.rs",
+          "function": {
+            "function_name": "serialize_url",
+            "return_type": "-> Result<Url, url::ParseError>",
+            "span": {
+              "start": {
+                "line": 412,
+                "column": 1
+              },
+              "end": {
+                "line": 435,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 419,
+              "column": 5
+            },
+            "end": {
+              "line": 434,
+              "column": 12
             }
           },
           "replacement": "Ok(Default::default())",
@@ -622,12 +3524,12 @@
         }
       },
       "summary": "Unviable",
-      "log_path": "log/payjoin__src__send__v2__mod.rs_line_67_col_9.log",
-      "diff_path": "diff/payjoin__src__send__v2__mod.rs_line_67_col_9.diff",
+      "log_path": "log/payjoin__src__send__mod.rs_line_419_col_5.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_419_col_5.diff",
       "phase_results": [
         {
           "phase": "Build",
-          "duration": 0.502361268,
+          "duration": 0.551822328,
           "process_status": {
             "Failure": 101
           },
@@ -645,42 +3547,42 @@
       "scenario": {
         "Mutant": {
           "package": "payjoin",
-          "file": "payjoin/src/send/v2/mod.rs",
+          "file": "payjoin/src/send/mod.rs",
           "function": {
-            "function_name": "serialize_v2_body",
-            "return_type": "-> Result<Vec<u8>, CreateRequestError>",
+            "function_name": "serialize_url",
+            "return_type": "-> Result<Url, url::ParseError>",
             "span": {
               "start": {
-                "line": 196,
+                "line": 412,
                 "column": 1
               },
               "end": {
-                "line": 214,
+                "line": 435,
                 "column": 2
               }
             }
           },
           "span": {
             "start": {
-              "line": 203,
-              "column": 5
+              "line": 431,
+              "column": 67
             },
             "end": {
-              "line": 213,
-              "column": 61
+              "line": 431,
+              "column": 68
             }
           },
-          "replacement": "Ok(vec![])",
-          "genre": "FnValue"
+          "replacement": "%",
+          "genre": "BinaryOperator"
         }
       },
       "summary": "MissedMutant",
-      "log_path": "log/payjoin__src__send__v2__mod.rs_line_203_col_5.log",
-      "diff_path": "diff/payjoin__src__send__v2__mod.rs_line_203_col_5.diff",
+      "log_path": "log/payjoin__src__send__mod.rs_line_431_col_67_001.log",
+      "diff_path": "diff/payjoin__src__send__mod.rs_line_431_col_67_001.diff",
       "phase_results": [
         {
           "phase": "Build",
-          "duration": 2.00791397,
+          "duration": 1.809296284,
           "process_status": "Success",
           "argv": [
             "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
@@ -692,294 +3594,11 @@
         },
         {
           "phase": "Test",
-          "duration": 0.802903759,
+          "duration": 0.852306757,
           "process_status": "Success",
           "argv": [
             "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
             "test",
-            "--verbose",
-            "--package=payjoin@0.22.0"
-          ]
-        }
-      ]
-    },
-    {
-      "scenario": {
-        "Mutant": {
-          "package": "payjoin",
-          "file": "payjoin/src/send/v2/mod.rs",
-          "function": {
-            "function_name": "serialize_v2_body",
-            "return_type": "-> Result<Vec<u8>, CreateRequestError>",
-            "span": {
-              "start": {
-                "line": 196,
-                "column": 1
-              },
-              "end": {
-                "line": 214,
-                "column": 2
-              }
-            }
-          },
-          "span": {
-            "start": {
-              "line": 203,
-              "column": 5
-            },
-            "end": {
-              "line": 213,
-              "column": 61
-            }
-          },
-          "replacement": "Ok(vec![1])",
-          "genre": "FnValue"
-        }
-      },
-      "summary": "MissedMutant",
-      "log_path": "log/payjoin__src__send__v2__mod.rs_line_203_col_5_001.log",
-      "diff_path": "diff/payjoin__src__send__v2__mod.rs_line_203_col_5_001.diff",
-      "phase_results": [
-        {
-          "phase": "Build",
-          "duration": 1.254060694,
-          "process_status": "Success",
-          "argv": [
-            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
-            "test",
-            "--no-run",
-            "--verbose",
-            "--package=payjoin@0.22.0"
-          ]
-        },
-        {
-          "phase": "Test",
-          "duration": 0.703160946,
-          "process_status": "Success",
-          "argv": [
-            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
-            "test",
-            "--verbose",
-            "--package=payjoin@0.22.0"
-          ]
-        }
-      ]
-    },
-    {
-      "scenario": {
-        "Mutant": {
-          "package": "payjoin",
-          "file": "payjoin/src/send/v2/mod.rs",
-          "function": {
-            "function_name": "V2GetContext::extract_req",
-            "return_type": "-> Result<(Request, ohttp::ClientResponse), CreateRequestError>",
-            "span": {
-              "start": {
-                "line": 254,
-                "column": 5
-              },
-              "end": {
-                "line": 280,
-                "column": 6
-              }
-            }
-          },
-          "span": {
-            "start": {
-              "line": 258,
-              "column": 9
-            },
-            "end": {
-              "line": 279,
-              "column": 54
-            }
-          },
-          "replacement": "Ok((Default::default(), Default::default()))",
-          "genre": "FnValue"
-        }
-      },
-      "summary": "Unviable",
-      "log_path": "log/payjoin__src__send__v2__mod.rs_line_258_col_9.log",
-      "diff_path": "diff/payjoin__src__send__v2__mod.rs_line_258_col_9.diff",
-      "phase_results": [
-        {
-          "phase": "Build",
-          "duration": 0.351715421,
-          "process_status": {
-            "Failure": 101
-          },
-          "argv": [
-            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
-            "test",
-            "--no-run",
-            "--verbose",
-            "--package=payjoin@0.22.0"
-          ]
-        }
-      ]
-    },
-    {
-      "scenario": {
-        "Mutant": {
-          "package": "payjoin",
-          "file": "payjoin/src/send/v2/mod.rs",
-          "function": {
-            "function_name": "SenderBuilder<'a>::build_with_additional_fee",
-            "return_type": "-> Result<Sender, BuildSenderError>",
-            "span": {
-              "start": {
-                "line": 73,
-                "column": 5
-              },
-              "end": {
-                "line": 102,
-                "column": 6
-              }
-            }
-          },
-          "span": {
-            "start": {
-              "line": 93,
-              "column": 9
-            },
-            "end": {
-              "line": 101,
-              "column": 11
-            }
-          },
-          "replacement": "Ok(Default::default())",
-          "genre": "FnValue"
-        }
-      },
-      "summary": "Unviable",
-      "log_path": "log/payjoin__src__send__v2__mod.rs_line_93_col_9.log",
-      "diff_path": "diff/payjoin__src__send__v2__mod.rs_line_93_col_9.diff",
-      "phase_results": [
-        {
-          "phase": "Build",
-          "duration": 0.401430351,
-          "process_status": {
-            "Failure": 101
-          },
-          "argv": [
-            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
-            "test",
-            "--no-run",
-            "--verbose",
-            "--package=payjoin@0.22.0"
-          ]
-        }
-      ]
-    },
-    {
-      "scenario": {
-        "Mutant": {
-          "package": "payjoin",
-          "file": "payjoin/src/send/v2/mod.rs",
-          "function": {
-            "function_name": "serialize_v2_body",
-            "return_type": "-> Result<Vec<u8>, CreateRequestError>",
-            "span": {
-              "start": {
-                "line": 196,
-                "column": 1
-              },
-              "end": {
-                "line": 214,
-                "column": 2
-              }
-            }
-          },
-          "span": {
-            "start": {
-              "line": 203,
-              "column": 5
-            },
-            "end": {
-              "line": 213,
-              "column": 61
-            }
-          },
-          "replacement": "Ok(vec![0])",
-          "genre": "FnValue"
-        }
-      },
-      "summary": "MissedMutant",
-      "log_path": "log/payjoin__src__send__v2__mod.rs_line_203_col_5_002.log",
-      "diff_path": "diff/payjoin__src__send__v2__mod.rs_line_203_col_5_002.diff",
-      "phase_results": [
-        {
-          "phase": "Build",
-          "duration": 1.3030436,
-          "process_status": "Success",
-          "argv": [
-            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
-            "test",
-            "--no-run",
-            "--verbose",
-            "--package=payjoin@0.22.0"
-          ]
-        },
-        {
-          "phase": "Test",
-          "duration": 0.752948615,
-          "process_status": "Success",
-          "argv": [
-            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
-            "test",
-            "--verbose",
-            "--package=payjoin@0.22.0"
-          ]
-        }
-      ]
-    },
-    {
-      "scenario": {
-        "Mutant": {
-          "package": "payjoin",
-          "file": "payjoin/src/send/v2/mod.rs",
-          "function": {
-            "function_name": "SenderBuilder<'a>::always_disable_output_substitution",
-            "return_type": "-> Self",
-            "span": {
-              "start": {
-                "line": 50,
-                "column": 5
-              },
-              "end": {
-                "line": 58,
-                "column": 6
-              }
-            }
-          },
-          "span": {
-            "start": {
-              "line": 57,
-              "column": 9
-            },
-            "end": {
-              "line": 57,
-              "column": 65
-            }
-          },
-          "replacement": "Default::default()",
-          "genre": "FnValue"
-        }
-      },
-      "summary": "Unviable",
-      "log_path": "log/payjoin__src__send__v2__mod.rs_line_57_col_9.log",
-      "diff_path": "diff/payjoin__src__send__v2__mod.rs_line_57_col_9.diff",
-      "phase_results": [
-        {
-          "phase": "Build",
-          "duration": 35.696874814,
-          "process_status": {
-            "Failure": 101
-          },
-          "argv": [
-            "/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo",
-            "test",
-            "--no-run",
             "--verbose",
             "--package=payjoin@0.22.0"
           ]
@@ -987,10 +3606,10 @@
       ]
     }
   ],
-  "total_mutants": 17,
-  "missed": 6,
-  "caught": 0,
+  "total_mutants": 62,
+  "missed": 21,
+  "caught": 9,
   "timeout": 0,
-  "unviable": 11,
+  "unviable": 32,
   "success": 0
 }
