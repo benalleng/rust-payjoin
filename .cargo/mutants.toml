@@ -1,0 +1,9 @@
+additional_cargo_args = ["--all-features"]
+examine_globs = ["payjoin/src/**/*.rs", "payjoin-cli/src/**/*.rs"]
+exclude_globs = []
+exclude_re = [
+	"impl Debug",
+	"impl Display",
+	"deserialize",
+	"Iterator"
+]
