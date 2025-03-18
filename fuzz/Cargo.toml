@@ -1,0 +1,27 @@
+[package]
+name = "payjoin-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+bitcoin = { version = "0.32.5", features = ["base64"] }
+bitcoin_uri = { version = "0.1.0" }
+payjoin = { version = "0.22.0", default-features = false }
+payjoin-test-utils = { path = "../payjoin-test-utils" }
+honggfuzz = { version = "0.5.57", default-features = false }
+ohttp = { package = "bitcoin-ohttp", version = "0.6.0" }
+
+[lints.rust]
+unexpected_cfgs = { level = "deny", check-cfg = ['cfg(fuzzing)'] }
+
+[[bin]]
+name = "uri_deserialize_pjuri"
+path = "fuzz_targets/uri/deserialize_pjuri.rs"
+
+[[bin]]
+name = "uri_deserialize_endpoint"
+path = "fuzz_targets/uri/deserialize_endpoint.rs"

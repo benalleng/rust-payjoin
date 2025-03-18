@@ -4,3 +4,7 @@ target
 *payjoin.sled
 Cargo.lock
 .vscode
+
+#Fuzz artifacts
+hfuzz_target
+hfuzz_workspace
