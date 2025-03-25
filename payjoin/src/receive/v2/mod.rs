@@ -637,6 +637,30 @@ mod test {
     }
 
     #[test]
+    fn maximum_expiry() {
+        let session = Receiver::new(
+            SHARED_CONTEXT.address.clone(),
+            SHARED_CONTEXT.directory.clone(),
+            SHARED_CONTEXT.ohttp_keys.clone(),
+            None,
+        );
+        if let Some(expiry_time) =
+            SystemTime::checked_add(&SystemTime::now(), Duration::from_secs(86400))
+        {
+            assert_eq!(
+                session
+                    .unwrap()
+                    .context
+                    .expiry
+                    .duration_since(SystemTime::now())
+                    .unwrap()
+                    .as_secs(),
+                expiry_time.duration_since(SystemTime::now()).unwrap().as_secs()
+            );
+        }
+    }
+
+    #[test]
     fn receiver_ser_de_roundtrip() -> Result<(), serde_json::Error> {
         let session = Receiver { context: SHARED_CONTEXT.clone() };
         let serialized = serde_json::to_string(&session)?;

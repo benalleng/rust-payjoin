@@ -195,7 +195,7 @@ impl PayjoinProposal {
 }
 
 /// A multiparty proposal that is ready to be combined into a single psbt
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct FinalizedProposal {
     v2_proposals: Vec<v2::UncheckedProposal>,
 }
@@ -247,4 +247,95 @@ impl FinalizedProposal {
     }
 
     pub fn v2(&self) -> &[v2::UncheckedProposal] { &self.v2_proposals }
+}
+
+#[cfg(test)]
+mod test {
+
+    use std::any::{Any, TypeId};
+    use std::str::FromStr;
+    use std::time::{Duration, SystemTime};
+
+    use bitcoin::Address;
+    use payjoin_test_utils::{BoxError, EXAMPLE_URL, KEM, KEY_ID, PARSED_ORIGINAL_PSBT, SYMMETRIC};
+
+    use super::{v1, v2, FinalizedProposal, UncheckedProposalBuilder};
+    use crate::receive::optional_parameters::Params;
+    use crate::receive::v2::test::SHARED_CONTEXT;
+    use crate::receive::v2::SessionContext;
+    use crate::{HpkeKeyPair, OhttpKeys};
+
+    pub(crate) fn multiparty_proposal_from_test_vector() -> v1::UncheckedProposal {
+        let pairs = url::form_urlencoded::parse("v=2&optimisticmerge=true".as_bytes());
+        let params =
+            Params::from_query_pairs(pairs, &[2]).expect("Could not parse from query pairs");
+        v1::UncheckedProposal { psbt: PARSED_ORIGINAL_PSBT.clone(), params }
+    }
+
+    #[test]
+    fn test_build_multiparty() -> Result<(), BoxError> {
+        let proposal_one = v2::UncheckedProposal {
+            v1: multiparty_proposal_from_test_vector(),
+            context: SHARED_CONTEXT.clone(),
+        };
+        let proposal_two = v2::UncheckedProposal {
+            v1: multiparty_proposal_from_test_vector(),
+            context: SessionContext {
+                address: Address::from_str("3CZZi7aWFugaCdUCS15dgrUUViupmB8bVM")
+                    .unwrap()
+                    .assume_checked(),
+                directory: EXAMPLE_URL.clone(),
+                subdirectory: None,
+                ohttp_keys: OhttpKeys(
+                    ohttp::KeyConfig::new(KEY_ID, KEM, Vec::from(SYMMETRIC))
+                        .expect("valid key config"),
+                ),
+                expiry: SystemTime::now() + Duration::from_secs(60),
+                s: HpkeKeyPair::gen_keypair(),
+                e: None,
+            },
+        };
+        let mut multiparty = UncheckedProposalBuilder::new();
+        multiparty.add(proposal_one).expect("Could not add proposal");
+        multiparty.add(proposal_two).expect("Could not add proposal");
+        let unchecked_proposal = multiparty.build();
+        assert!(unchecked_proposal.is_ok_and(|proposal| proposal.contexts.len() == 2));
+        Ok(())
+    }
+
+    #[test]
+    fn finalize_multiparty() -> Result<(), BoxError> {
+        let proposal_one = v2::UncheckedProposal {
+            v1: multiparty_proposal_from_test_vector(),
+            context: SHARED_CONTEXT.clone(),
+        };
+        let proposal_two = v2::UncheckedProposal {
+            v1: multiparty_proposal_from_test_vector(),
+            context: SessionContext {
+                address: Address::from_str("3CZZi7aWFugaCdUCS15dgrUUViupmB8bVM")
+                    .unwrap()
+                    .assume_checked(),
+                directory: EXAMPLE_URL.clone(),
+                subdirectory: None,
+                ohttp_keys: OhttpKeys(
+                    ohttp::KeyConfig::new(KEY_ID, KEM, Vec::from(SYMMETRIC))
+                        .expect("valid key config"),
+                ),
+                expiry: SystemTime::now() + Duration::from_secs(60),
+                s: HpkeKeyPair::gen_keypair(),
+                e: None,
+            },
+        };
+        let mut finalized_multiparty = FinalizedProposal::new();
+        finalized_multiparty
+            .add(proposal_one.clone())
+            .expect("Could not add propsal to multiparty");
+        assert!(finalized_multiparty.clone().combine().is_err());
+
+        finalized_multiparty.add(proposal_two).expect("Could not add propsal to multiparty");
+        assert!(finalized_multiparty.clone().combine().is_ok());
+        assert_eq!(finalized_multiparty.v2()[0].type_id(), TypeId::of::<v2::UncheckedProposal>());
+
+        Ok(())
+    }
 }
