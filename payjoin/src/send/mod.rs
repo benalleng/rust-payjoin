@@ -450,7 +450,7 @@ mod test {
     use bitcoin::secp256k1::{Message, PublicKey, Secp256k1, SecretKey};
     use bitcoin::transaction::Version;
     use bitcoin::{
-        Amount, FeeRate, OutPoint, Script, ScriptBuf, Sequence, Witness, XOnlyPublicKey,
+        Amount, FeeRate, OutPoint, Psbt, Script, ScriptBuf, Sequence, Witness, XOnlyPublicKey,
     };
     use payjoin_test_utils::{
         BoxError, PARSED_ORIGINAL_PSBT, PARSED_PAYJOIN_PROPOSAL,
@@ -546,10 +546,43 @@ mod test {
             fee_contribution.as_ref().err()
         );
         assert_eq!((*fee_contribution.as_ref().expect("Failed to retrieve fees")).unwrap().vout, 0);
+        assert_ne!(
+            PARSED_ORIGINAL_PSBT.unsigned_tx.output[0].value,
+            (*fee_contribution.as_ref().expect("Failed to retreive fees")).unwrap().max_amount
+        );
         assert_eq!(
             (*fee_contribution.as_ref().expect("Failed to retrieve fees")).unwrap().max_amount,
             Amount::from_sat(1000)
         );
+        Ok(())
+    }
+
+    #[test]
+    fn test_clamp_fee_contribution() -> Result<(), BoxError> {
+        let original_psbt = Psbt::from_str("cHNidP8BAFICAAAAAZ38ZijCbFiZ/hvT3DOGZb/VXXraEPYiCXPfLTht7BJ2AQAAAAD/////AfA9zR0AAAAAFgAUezoAv9wU0neVwrdJAdCdpu8TNXkAAAAATwEENYfPAto/0AiAAAAAlwSLGtBEWx7IJ1UXcnyHtOTrwYogP/oPlMAVZr046QADUbdDiH7h1A3DKmBDck8tZFmztaTXPa7I+64EcvO8Q+IM2QxqT64AAIAAAACATwEENYfPAto/0AiAAAABuQRSQnE5zXjCz/JES+NTzVhgXj5RMoXlKLQH+uP2FzUD0wpel8itvFV9rCrZp+OcFyLrrGnmaLbyZnzB1nHIPKsM2QxqT64AAIABAACAAAEBKwBlzR0AAAAAIgAgLFSGEmxJeAeagU4TcV1l82RZ5NbMre0mbQUIZFuvpjIBBUdSIQKdoSzbWyNWkrkVNq/v5ckcOrlHPY5DtTODarRWKZyIcSEDNys0I07Xz5wf6l0F1EFVeSe+lUKxYusC4ass6AIkwAtSriIGAp2hLNtbI1aSuRU2r+/lyRw6uUc9jkO1M4NqtFYpnIhxENkMak+uAACAAAAAgAAAAAAiBgM3KzQjTtfPnB/qXQXUQVV5J76VQrFi6wLhqyzoAiTACxDZDGpPrgAAgAEAAIAAAAAAACICA57/H1R6HV+S36K6evaslxpL0DukpzSwMVaiVritOh75EO3kXMUAAACAAAAAgAEAAIAA").unwrap();
+        let script_bytes =
+            <Vec<u8> as FromHex>::from_hex("00147b3a00bfdc14d27795c2b74901d09da6ef133579")?;
+        let payee_script = Script::from_bytes(&script_bytes);
+        let fee_contribution = determine_fee_contribution(
+            &original_psbt,
+            payee_script,
+            Some((Amount::from_sat(1000), None)),
+            false,
+        );
+        match fee_contribution {
+            Ok(_) => panic!("Expected error, got success"),
+            Err(error) =>
+                assert_eq!(error, InternalBuildSenderError::FeeOutputValueLowerThanFeeContribution),
+        }
+
+        let fee_contribution = determine_fee_contribution(
+            &original_psbt,
+            payee_script,
+            Some((Amount::from_sat(1000), None)),
+            true,
+        );
+
+        assert_eq!(fee_contribution, Ok(None));
         Ok(())
     }
 
@@ -620,6 +653,28 @@ mod test {
             result.unwrap().inputs_mut()[0].witness_utxo,
             PARSED_ORIGINAL_PSBT.inputs[0].witness_utxo,
         );
+        Ok(())
+    }
+
+    #[test]
+    fn test_min_feerate_query_param() -> Result<(), BoxError> {
+        let url = serialize_url(
+            Url::parse("http://localhost")?,
+            OutputSubstitution::Enabled,
+            None,
+            FeeRate::BROADCAST_MIN,
+            "2",
+        );
+        assert_eq!(url, Url::parse("http://localhost?v=2&minfeerate=1")?);
+
+        let url = serialize_url(
+            Url::parse("http://localhost")?,
+            OutputSubstitution::Enabled,
+            None,
+            FeeRate::ZERO,
+            "2",
+        );
+        assert_eq!(url, Url::parse("http://localhost?v=2")?);
         Ok(())
     }
 
