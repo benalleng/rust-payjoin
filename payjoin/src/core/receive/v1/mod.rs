@@ -48,7 +48,7 @@ use super::optional_parameters::Params;
 use super::{InputPair, OutputSubstitutionError, ReplyableError, SelectionError};
 use crate::output_substitution::OutputSubstitution;
 use crate::psbt::PsbtExt;
-use crate::receive::InternalPayloadError;
+use crate::receive::{InternalPayloadError, PayloadError};
 use crate::ImplementationError;
 
 #[cfg(feature = "v1")]
@@ -585,11 +585,11 @@ impl ProvisionalProposal {
     ///
     /// If not provided, min_fee_rate and max_effective_fee_rate default to the
     /// minimum relay fee, as defined by [`FeeRate::BROADCAST_MIN`].
-    fn apply_fee(
+    pub fn apply_fee(
         &mut self,
         min_fee_rate: Option<FeeRate>,
         max_effective_fee_rate: Option<FeeRate>,
-    ) -> Result<&Psbt, InternalPayloadError> {
+    ) -> Result<&Psbt, PayloadError> {
         let min_fee_rate = min_fee_rate.unwrap_or(FeeRate::BROADCAST_MIN);
         log::trace!("min_fee_rate: {min_fee_rate:?}");
         log::trace!("params.min_fee_rate: {:?}", self.params.min_fee_rate);
@@ -648,7 +648,7 @@ impl ProvisionalProposal {
         if receiver_additional_fee > max_fee {
             let proposed_fee_rate =
                 receiver_additional_fee / (input_contribution_weight + output_contribution_weight);
-            return Err(InternalPayloadError::FeeTooHigh(proposed_fee_rate, max_fee_rate));
+            return Err(InternalPayloadError::FeeTooHigh(proposed_fee_rate, max_fee_rate).into());
         }
         if receiver_additional_fee > Amount::ZERO {
             // Remove additional miner fee from the receiver's specified output
@@ -752,7 +752,7 @@ impl ProvisionalProposal {
         min_fee_rate: Option<FeeRate>,
         max_effective_fee_rate: Option<FeeRate>,
     ) -> Result<PayjoinProposal, ReplyableError> {
-        let mut psbt = self.apply_fee(min_fee_rate, max_effective_fee_rate)?.clone();
+        let mut psbt = self.apply_fee(min_fee_rate, max_effective_fee_rate).map_err(ReplyableError::Payload)?.clone();
         // Remove now-invalid sender signatures before applying the receiver signatures
         for i in self.sender_input_indexes() {
             log::trace!("Clearing sender input {i}");
@@ -940,7 +940,7 @@ pub(crate) mod test {
         assert!(psbt.is_ok(), "Payjoin should be a valid PSBT");
         let psbt = payjoin_clone.apply_fee(None, Some(FeeRate::from_sat_per_vb_unchecked(995)));
         match psbt {
-            Err(InternalPayloadError::FeeTooHigh(proposed, max)) => {
+            Err(PayloadError(InternalPayloadError::FeeTooHigh(proposed, max))) => {
                 assert_eq!(FeeRate::from_str("249630").unwrap(), proposed);
                 assert_eq!(FeeRate::from_sat_per_vb_unchecked(995), max);
             }

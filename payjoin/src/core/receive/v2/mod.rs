@@ -33,7 +33,7 @@ use crate::persist::{
     MaybeBadInitInputsTransition, MaybeFatalTransition, MaybeFatalTransitionWithNoResults,
     MaybeSuccessTransition, MaybeTransientTransition, NextStateTransition,
 };
-use crate::receive::{parse_payload, InputPair};
+use crate::receive::{parse_payload, InputPair, PayloadError};
 use crate::uri::ShortId;
 use crate::{ImplementationError, IntoUrl, IntoUrlError, Request, Version};
 
@@ -753,6 +753,13 @@ pub struct ProvisionalProposal {
 impl State for ProvisionalProposal {}
 
 impl Receiver<ProvisionalProposal> {
+    pub fn apply_fee(
+        &mut self,
+        min_fee_rate: Option<FeeRate>,
+        max_effective_fee_rate: Option<FeeRate>,
+    ) -> Result<&Psbt, PayloadError> {
+        self.v1.apply_fee(min_fee_rate, max_effective_fee_rate)
+    }
     /// Return a Payjoin Proposal PSBT that the sender will find acceptable.
     ///
     /// This attempts to calculate any network fee owed by the receiver, subtract it from their output,
