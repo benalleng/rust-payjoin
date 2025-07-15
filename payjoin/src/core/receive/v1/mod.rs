@@ -146,7 +146,7 @@ impl MaybeInputsOwned {
     /// An attacker could try to spend receiver's own inputs. This check prevents that.
     pub fn check_inputs_not_owned(
         self,
-        is_owned: impl Fn(&Script) -> Result<bool, ImplementationError>,
+        mut is_owned: impl FnMut(&Script) -> Result<bool, ImplementationError>,
     ) -> Result<MaybeInputsSeen, ReplyableError> {
         let mut err: Result<(), ReplyableError> = Ok(());
         if let Some(e) = self
@@ -187,7 +187,7 @@ impl MaybeInputsSeen {
     /// proposes a Payjoin PSBT as a new Original PSBT for a new Payjoin.
     pub fn check_no_inputs_seen_before(
         self,
-        is_known: impl Fn(&OutPoint) -> Result<bool, ImplementationError>,
+        mut is_known: impl FnMut(&OutPoint) -> Result<bool, ImplementationError>,
     ) -> Result<OutputsUnknown, ReplyableError> {
         self.psbt.input_pairs().try_for_each(|input| {
             match is_known(&input.txin.previous_output) {
@@ -218,7 +218,7 @@ impl OutputsUnknown {
     /// Find which outputs belong to the receiver
     pub fn identify_receiver_outputs(
         self,
-        is_receiver_output: impl Fn(&Script) -> Result<bool, ImplementationError>,
+        mut is_receiver_output: impl FnMut(&Script) -> Result<bool, ImplementationError>,
     ) -> Result<WantsOutputs, ReplyableError> {
         let owned_vouts: Vec<usize> = self
             .psbt
