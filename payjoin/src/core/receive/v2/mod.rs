@@ -507,7 +507,7 @@ impl Receiver<MaybeInputsOwned> {
     /// An attacker could try to spend receiver's own inputs. This check prevents that.
     pub fn check_inputs_not_owned(
         self,
-        is_owned: impl Fn(&Script) -> Result<bool, ImplementationError>,
+        is_owned: impl FnMut(&Script) -> Result<bool, ImplementationError>,
     ) -> MaybeFatalTransition<SessionEvent, Receiver<MaybeInputsSeen>, ReplyableError> {
         let inner = match self.state.v1.clone().check_inputs_not_owned(is_owned) {
             Ok(inner) => inner,
@@ -553,7 +553,7 @@ impl Receiver<MaybeInputsSeen> {
     /// proposes a Payjoin PSBT as a new Original PSBT for a new Payjoin.
     pub fn check_no_inputs_seen_before(
         self,
-        is_known: impl Fn(&OutPoint) -> Result<bool, ImplementationError>,
+        is_known: impl FnMut(&OutPoint) -> Result<bool, ImplementationError>,
     ) -> MaybeFatalTransition<SessionEvent, Receiver<OutputsUnknown>, ReplyableError> {
         let inner = match self.state.v1.clone().check_no_inputs_seen_before(is_known) {
             Ok(inner) => inner,
@@ -598,7 +598,7 @@ impl Receiver<OutputsUnknown> {
     /// Find which outputs belong to the receiver
     pub fn identify_receiver_outputs(
         self,
-        is_receiver_output: impl Fn(&Script) -> Result<bool, ImplementationError>,
+        is_receiver_output: impl FnMut(&Script) -> Result<bool, ImplementationError>,
     ) -> MaybeFatalTransition<SessionEvent, Receiver<WantsOutputs>, ReplyableError> {
         let inner = match self.state.inner.clone().identify_receiver_outputs(is_receiver_output) {
             Ok(inner) => inner,
