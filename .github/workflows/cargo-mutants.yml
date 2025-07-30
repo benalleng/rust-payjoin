@@ -1,0 +1,76 @@
+name: PR-based cargo-mutants
+
+on: 
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  pr-mutants:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test_tool: [cargo] # or nextest if you want
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # required for full diff context
+
+      - name: Fetch base branch for diff
+        run: git fetch origin ${{ github.base_ref }}
+
+      - name: Relative diff
+        run: |
+          git branch -av
+          git diff origin/${{ github.base_ref }}.. | tee git.diff
+
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-mutants@25.2.2
+
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: beta
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          save-if: false
+
+      - name: (Optional) Install nextest
+        if: matrix.test_tool == 'nextest'
+        uses: taiki-e/install-action@v2
+        with:
+          tool: nextest
+
+      - name: Run cargo-mutants on diff
+        run: >
+          cargo mutants --no-shuffle -vV --in-diff git.diff
+          --test-tool=${{ matrix.test_tool }} --timeout=500 --build-timeout=500
+
+      - name: Upload mutants.out
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mutants-incremental-${{ matrix.test_tool }}.out
+          path: mutants.out
+
+      - name: Comment on PR if missed mutants
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -s mutants.out/missed.txt ]; then
+            echo "Missed mutants found"
+            COMMENT_BODY=$(cat <<EOF
+          Missed mutants found using \`cargo-mutants --in-diff\`.
+
+          \`\`\`
+          $(head -n 15 mutants.out/missed.txt)
+          \`\`\`
+
+          Check the full [mutants.out artifact](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for more.
+          EOF
+          )
+            gh pr comment ${{ github.event.pull_request.number }} --body "$COMMENT_BODY"
+          else
+            echo "No missed mutants"
+          fi
