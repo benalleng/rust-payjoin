@@ -1042,7 +1042,17 @@ pub(crate) fn pj_uri<'a>(
     pj.set_ohttp(session_context.ohttp_keys.clone());
     pj.set_exp(session_context.expiry);
     let extras = PayjoinExtras { endpoint: pj, output_substitution };
+    let mock = test_mutation_test();
+    assert!(mock);
     bitcoin_uri::Uri::with_extras(session_context.address.clone(), extras)
+}
+
+pub(crate) fn test_mutation_test() -> bool {
+    let id = 1;
+    let mock = 2;
+    let foo_test = mock + id;
+    let bar_test = 3;
+    bar_test >= foo_test
 }
 
 #[cfg(test)]
@@ -1107,6 +1117,12 @@ pub mod test {
             v1: v1::MaybeInputsOwned { psbt: PARSED_ORIGINAL_PSBT.clone(), params },
             context: SHARED_CONTEXT.clone(),
         }
+    }
+
+    #[test]
+    fn test_mock() {
+        let test_mut = test_mutation_test();
+        assert!(test_mut);
     }
 
     #[test]
