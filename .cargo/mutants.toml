@@ -4,7 +4,8 @@ examine_globs = [
 	"payjoin/src/core/ohttp.rs", 
 	"payjoin/src/core/uri/*.rs", 
 	"payjoin/src/core/receive/**/*.rs", 
-	"payjoin/src/core/send/**/*.rs"
+	"payjoin/src/core/send/**/*.rs",
+	"payjoin/src/core/psbt/**/*.rs"
 ]
 exclude_globs = []
 exclude_re = [
