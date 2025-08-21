@@ -14,7 +14,6 @@ if [[ "$OS" == "Darwin" ]]; then
     LIBNAME=$MAC_LIBNAME
     python3 --version
     pip install -r requirements.txt -r requirements-dev.txt
-    rustup target add aarch64-apple-darwin x86_64-apple-darwin
 elif [[ "$OS" == "Linux" ]]; then
     LIBNAME=$LINUX_LIBNAME
     ${PYBIN}/python --version
@@ -28,13 +27,15 @@ fi
 if [[ "$OS" == "Darwin" ]]; then
     if [[ "$ARCH" == "arm64" ]]; then
         echo "Generating native binaries..."
+        rustup target add aarch64-apple-darwin
         # This is a test script the actual release should not include the test utils feature
-        cargo build --profile release-smaller --target aarch64-apple-darwin --features _test-utils
+        rustup run 1.85.0-aarch64-apple-darwin cargo build --profile release-smaller --target aarch64-apple-darwin --features _test-utils
         echo "Done building aarch64-apple-darwin"
     elif [[ "$ARCH" == "x86_64" ]]; then
         echo "Generating native binaries..."
+        rustup target add x86_64-apple-darwin
         # This is a test script the actual release should not include the test utils feature
-        cargo build --profile release-smaller --target x86_64-apple-darwin --features _test-utils
+        rustup run 1.85.0-x86_64-apple-darwin cargo build --profile release-smaller --target x86_64-apple-darwin --features _test-utils
         echo "Done building x86_64-apple-darwin"
     fi
 else
