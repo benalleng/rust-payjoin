@@ -94,13 +94,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: dtolnay/rust-toolchain@1.85.0
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.85.0
 
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
 
       - uses: Swatinem/rust-cache@v2
+      
+      - name: Install llvm-objcopy
+        run: |
+            brew install llvm
+            echo "OBJCOPY=$(brew --prefix llvm)/bin/llvm-objcopy" >> $GITHUB_ENV
 
       - name: Build x86_64 binary
         run: bash ./scripts/bindgen_generate.sh
