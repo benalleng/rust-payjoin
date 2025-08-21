@@ -29,13 +29,13 @@ if [[ "$OS" == "Darwin" ]]; then
         echo "Generating native binaries..."
         rustup target add aarch64-apple-darwin
         # This is a test script the actual release should not include the test utils feature
-        rustup run 1.85.0-aarch64-apple-darwin cargo build --profile release-smaller --target aarch64-apple-darwin --features _test-utils
+        cargo build --profile release-smaller --target aarch64-apple-darwin --features _test-utils
         echo "Done building aarch64-apple-darwin"
     elif [[ "$ARCH" == "x86_64" ]]; then
         echo "Generating native binaries..."
         rustup target add x86_64-apple-darwin
         # This is a test script the actual release should not include the test utils feature
-        rustup run 1.85.0-x86_64-apple-darwin cargo build --profile release-smaller --target x86_64-apple-darwin --features _test-utils
+        cargo build --profile release-smaller --target x86_64-apple-darwin --features _test-utils
         echo "Done building x86_64-apple-darwin"
     fi
 else

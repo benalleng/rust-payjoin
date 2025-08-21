@@ -74,7 +74,9 @@ jobs:
       - uses: Swatinem/rust-cache@v2
 
       - name: Build aarch64 binary
-        run: bash ./scripts/bindgen_generate.sh
+        run: |
+          rustup override set 1.85.0-aarch64-apple-darwin
+          bash ./scripts/bindgen_generate.sh
 
       - name: Upload aarch64 binary
         uses: actions/upload-artifact@v4
@@ -102,8 +104,10 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
       
-      - name: Build x86_64 binary
-        run: bash ./scripts/bindgen_generate.sh
+      - name: Build aarch64 binary
+        run: |
+          rustup override set 1.85.0-x86_64-apple-darwin
+          bash ./scripts/bindgen_generate.sh
 
       - name: Log all Rust host binaries 1.85.0
         if: always()
