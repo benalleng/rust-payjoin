@@ -51,3 +51,4 @@ PYBIN="./venv/bin/" bash ./scripts/generate_bindings.sh
 python -m build --wheel
 
 ```
+test
