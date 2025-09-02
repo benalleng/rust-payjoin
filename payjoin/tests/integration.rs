@@ -8,16 +8,16 @@ mod integration {
     use bitcoin::{Amount, FeeRate, OutPoint, TxIn, TxOut, Weight};
     use bitcoind::bitcoincore_rpc::json::{AddressType, WalletProcessPsbtResult};
     use bitcoind::bitcoincore_rpc::{self, RpcApi};
-    use payjoin::receive::v1::build_v1_pj_uri;
     use payjoin::receive::InputPair;
-    use payjoin::{ImplementationError, OutputSubstitution, PjUri, Request, Uri};
+    use payjoin::{ImplementationError, PjUri, Request, Uri};
     use payjoin_test_utils::{init_bitcoind_sender_receiver, init_tracing, BoxError};
 
     const EXAMPLE_URL: &str = "https://example.com";
     #[cfg(feature = "v1")]
     mod v1 {
+        use payjoin::receive::v1::build_v1_pj_uri;
         use payjoin::send::v1::SenderBuilder;
-        use payjoin::UriExt;
+        use payjoin::{OutputSubstitution, UriExt};
         use tracing::debug;
 
         use super::*;
@@ -171,12 +171,13 @@ mod integration {
         use bitcoin::Address;
         use http::StatusCode;
         use payjoin::persist::NoopSessionPersister;
+        use payjoin::receive::v1::build_v1_pj_uri;
         use payjoin::receive::v2::{
             replay_event_log as replay_receiver_event_log, PayjoinProposal, Receiver,
             ReceiverBuilder, UncheckedOriginalPayload,
         };
         use payjoin::send::v2::SenderBuilder;
-        use payjoin::{OhttpKeys, PjUri, UriExt};
+        use payjoin::{OhttpKeys, OutputSubstitution, PjUri, UriExt};
         use payjoin_test_utils::{BoxSendSyncError, InMemoryTestPersister, TestServices};
         use reqwest::{Client, Response};
 
@@ -852,8 +853,9 @@ mod integration {
 
     #[cfg(feature = "v1")]
     mod batching {
+        use payjoin::receive::v1::build_v1_pj_uri;
         use payjoin::send::v1::SenderBuilder;
-        use payjoin::UriExt;
+        use payjoin::{OutputSubstitution, UriExt};
 
         use super::*;
 
@@ -1060,6 +1062,7 @@ mod integration {
 
     // Receiver receive and process original_psbt from a sender
     // In production it it will come in as an HTTP request (over ssl or onion)
+    #[cfg(feature = "v1")]
     fn handle_v1_pj_request(
         req: Request,
         headers: impl payjoin::receive::v1::Headers,
@@ -1081,6 +1084,7 @@ mod integration {
         Ok(psbt.to_string())
     }
 
+    #[cfg(feature = "v1")]
     fn handle_proposal(
         proposal: payjoin::receive::v1::UncheckedOriginalPayload,
         receiver: &bitcoincore_rpc::Client,
@@ -1231,6 +1235,7 @@ mod integration {
 
     struct HeaderMock(HashMap<String, String>);
 
+    #[cfg(feature = "v1")]
     impl payjoin::receive::v1::Headers for HeaderMock {
         fn get_header(&self, key: &str) -> Option<&str> { self.0.get(key).map(|e| e.as_str()) }
     }
