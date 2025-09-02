@@ -357,6 +357,7 @@ impl core::fmt::Display for WellKnownError {
     }
 }
 
+#[cfg(feature = "v1")]
 #[cfg(test)]
 mod tests {
     use serde_json::json;

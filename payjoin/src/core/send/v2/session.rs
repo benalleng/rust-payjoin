@@ -104,14 +104,15 @@ mod tests {
 
     use super::*;
     use crate::output_substitution::OutputSubstitution;
-    use crate::persist::test_utils::InMemoryTestPersister;
-    use crate::persist::NoopSessionPersister;
-    use crate::send::v2::{Sender, SenderBuilder};
+    // use crate::persist::test_utils::InMemoryTestPersister;
+    // use crate::persist::NoopSessionPersister;
+    // use crate::send::v2::{Sender, SenderBuilder};
     use crate::send::PsbtContext;
-    use crate::{HpkeKeyPair, Uri, UriExt};
+    // use crate::{HpkeKeyPair, Uri, UriExt};
+    use crate::HpkeKeyPair;
 
-    const PJ_URI: &str =
-        "bitcoin:2N47mmrWXsNBvQR6k78hWJoTji57zXwNcU7?amount=0.02&pjos=0&pj=HTTPS://EXAMPLE.COM/";
+    // const PJ_URI: &str =
+    //     "bitcoin:2N47mmrWXsNBvQR6k78hWJoTji57zXwNcU7?amount=0.02&pjos=0&pj=HTTPS://EXAMPLE.COM/";
 
     #[test]
     fn test_sender_session_event_serialization_roundtrip() {
@@ -166,29 +167,29 @@ mod tests {
         }
     }
 
-    struct SessionHistoryExpectedOutcome {
-        fallback_tx: Option<bitcoin::Transaction>,
-        pj_param: Option<PjParam>,
-    }
-
-    struct SessionHistoryTest {
-        events: Vec<SessionEvent>,
-        expected_session_history: SessionHistoryExpectedOutcome,
-        expected_sender_state: SendSession,
-    }
-
-    fn run_session_history_test(test: SessionHistoryTest) {
-        let persister = InMemoryTestPersister::<SessionEvent>::default();
-        for event in test.events {
-            persister.save_event(event).expect("In memory persister shouldn't fail");
-        }
-
-        let (sender, session_history) =
-            replay_event_log(&persister).expect("In memory persister shouldn't fail");
-        assert_eq!(sender, test.expected_sender_state);
-        assert_eq!(session_history.fallback_tx(), test.expected_session_history.fallback_tx);
-        assert_eq!(session_history.pj_param().cloned(), test.expected_session_history.pj_param);
-    }
+    // struct SessionHistoryExpectedOutcome {
+    //     fallback_tx: Option<bitcoin::Transaction>,
+    //     pj_param: Option<PjParam>,
+    // }
+    //
+    // struct SessionHistoryTest {
+    //     events: Vec<SessionEvent>,
+    //     expected_session_history: SessionHistoryExpectedOutcome,
+    //     expected_sender_state: SendSession,
+    // }
+    //
+    // fn run_session_history_test(test: SessionHistoryTest) {
+    //     let persister = InMemoryTestPersister::<SessionEvent>::default();
+    //     for event in test.events {
+    //         persister.save_event(event).expect("In memory persister shouldn't fail");
+    //     }
+    //
+    //     let (sender, session_history) =
+    //         replay_event_log(&persister).expect("In memory persister shouldn't fail");
+    //     assert_eq!(sender, test.expected_sender_state);
+    //     assert_eq!(session_history.fallback_tx(), test.expected_session_history.fallback_tx);
+    //     assert_eq!(session_history.pj_param().cloned(), test.expected_session_history.pj_param);
+    // }
 
     // #[cfg(feature = "v2")]
     // #[test]

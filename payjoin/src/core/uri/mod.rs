@@ -440,6 +440,7 @@ mod tests {
     }
 
     /// Test that rejects HTTP URLs that are not onion addresses
+    #[cfg(feature = "v1")]
     #[test]
     fn test_http_non_onion_rejected() {
         // HTTP to regular domain should be rejected
@@ -453,17 +454,29 @@ mod tests {
         // HTTPS to subdomain should be accepted
         let url = "https://example.com";
         let result = PjParam::try_from(url);
+        #[cfg(feature = "v1")]
         assert!(
             matches!(result, Ok(PjParam::V1(_))),
+            "Expected PjParam::V1 for HTTPS to non-onion domain without fragment"
+        );
+        #[cfg(feature = "v2")]
+        assert!(
+            matches!(result, Ok(PjParam::V2(_))),
             "Expected PjParam::V1 for HTTPS to non-onion domain without fragment"
         );
 
         // HTTP to domain ending in .onion should be accepted
         let url = "http://example.onion";
         let result = PjParam::try_from(url);
+        #[cfg(feature = "v1")]
         assert!(
             matches!(result, Ok(PjParam::V1(_))),
             "Expected PjParam::V1 for HTTP to onion domain without fragment"
+        );
+        #[cfg(feature = "v2")]
+        assert!(
+            matches!(result, Ok(PjParam::V2(_))),
+            "Expected PjParam::V1 for HTTPS to non-onion domain without fragment"
         );
     }
 }

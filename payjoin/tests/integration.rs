@@ -1,18 +1,31 @@
 mod integration {
+    #[cfg(feature = "v1")]
     use std::collections::HashMap;
+    #[cfg(feature = "v1")]
     use std::str::FromStr;
 
+    #[cfg(feature = "v1")]
     use bitcoin::policy::DEFAULT_MIN_RELAY_TX_FEE;
+    #[cfg(feature = "v1")]
     use bitcoin::psbt::{Input as PsbtInput, Psbt};
+    #[cfg(feature = "v1")]
     use bitcoin::transaction::InputWeightPrediction;
+    #[cfg(feature = "v1")]
     use bitcoin::{Amount, FeeRate, OutPoint, TxIn, TxOut, Weight};
+    #[cfg(feature = "v1")]
     use bitcoind::bitcoincore_rpc::json::{AddressType, WalletProcessPsbtResult};
+    #[cfg(feature = "v1")]
     use bitcoind::bitcoincore_rpc::{self, RpcApi};
+    #[cfg(feature = "v1")]
     use payjoin::receive::InputPair;
+    #[cfg(feature = "v1")]
     use payjoin::{ImplementationError, PjUri, Request, Uri};
+    #[cfg(feature = "v1")]
     use payjoin_test_utils::{init_bitcoind_sender_receiver, init_tracing, BoxError};
 
+    #[cfg(feature = "v1")]
     const EXAMPLE_URL: &str = "https://example.com";
+
     #[cfg(feature = "v1")]
     mod v1 {
         use payjoin::receive::v1::build_v1_pj_uri;
@@ -1034,6 +1047,7 @@ mod integration {
         }
     }
 
+    #[cfg(feature = "v1")]
     fn build_original_psbt(
         sender: &bitcoincore_rpc::Client,
         pj_uri: &PjUri,
@@ -1176,6 +1190,7 @@ mod integration {
         Ok(payjoin_proposal)
     }
 
+    #[cfg(feature = "v1")]
     fn extract_pj_tx(
         sender: &bitcoincore_rpc::Client,
         psbt: Psbt,
@@ -1190,6 +1205,7 @@ mod integration {
     }
 
     /// Simplified input weight predictions for a fully-signed transaction
+    #[cfg(feature = "v1")]
     fn predicted_tx_weight(tx: &bitcoin::Transaction) -> Weight {
         let input_weight_predictions = tx.input.iter().map(|txin| {
             // See https://bitcoin.stackexchange.com/a/107873
@@ -1212,6 +1228,7 @@ mod integration {
         bitcoin::transaction::predict_weight(input_weight_predictions, tx.script_pubkey_lens())
     }
 
+    #[cfg(feature = "v1")]
     fn input_pair_from_list_unspent(
         utxo: bitcoind::bitcoincore_rpc::bitcoincore_rpc_json::ListUnspentResultEntry,
     ) -> InputPair {
@@ -1233,6 +1250,7 @@ mod integration {
         InputPair::new(txin, psbtin, None).expect("Input pair should be valid")
     }
 
+    #[cfg(feature = "v1")]
     struct HeaderMock(HashMap<String, String>);
 
     #[cfg(feature = "v1")]
@@ -1240,6 +1258,7 @@ mod integration {
         fn get_header(&self, key: &str) -> Option<&str> { self.0.get(key).map(|e| e.as_str()) }
     }
 
+    #[cfg(feature = "v1")]
     impl HeaderMock {
         fn new(body: &[u8], content_type: &str) -> HeaderMock {
             let mut h = HashMap::new();

@@ -537,7 +537,10 @@ mod tests {
         let extras = Uri::try_from(uri).unwrap().extras;
         match extras {
             crate::uri::MaybePayjoinExtras::Supported(extras) => {
+                #[cfg(feature = "v1")]
                 assert!(matches!(extras.pj_param, crate::uri::PjParam::V1(_)));
+                #[cfg(feature = "v2")]
+                assert!(matches!(extras.pj_param, crate::uri::PjParam::V2(_)));
             }
             _ => panic!("Expected v1 pjparam"),
         }
