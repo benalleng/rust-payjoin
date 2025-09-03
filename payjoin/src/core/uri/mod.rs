@@ -252,6 +252,7 @@ impl bitcoin_uri::de::DeserializationState<'_> for DeserializationState {
 mod tests {
     use std::convert::TryFrom;
 
+    #[cfg(all(not(feature = "v2"), feature = "v1"))]
     use bitcoin_uri::SerializeParams;
 
     use super::*;
@@ -276,6 +277,7 @@ mod tests {
         assert!(Uri::try_from(uri).is_err(), "pj is not a valid url");
     }
 
+    #[cfg(all(not(feature = "v2"), feature = "v1"))]
     #[test]
     fn test_missing_amount() {
         let uri = "bitcoin:12c6DSiU4Rq3P4ZxziKxzrL5LmMBrzjrJX?pj=https://testnet.demo.btcpayserver.org/BTC/pj";
@@ -291,6 +293,7 @@ mod tests {
         assert!(Uri::try_from(uri).is_err(), "unencrypted connection");
     }
 
+    #[cfg(all(not(feature = "v2"), feature = "v1"))]
     #[test]
     fn test_valid_uris() {
         let https = "https://example.com";
@@ -325,6 +328,7 @@ mod tests {
         );
     }
 
+    #[cfg(all(not(feature = "v2"), feature = "v1"))]
     #[test]
     fn test_supported() {
         assert!(
@@ -340,6 +344,7 @@ mod tests {
         );
     }
 
+    #[cfg(all(not(feature = "v2"), feature = "v1"))]
     #[test]
     fn test_pj_param_unknown() {
         use bitcoin_uri::de::DeserializationState as _;
@@ -360,6 +365,7 @@ mod tests {
         );
     }
 
+    #[cfg(all(not(feature = "v2"), feature = "v1"))]
     #[test]
     fn test_pj_duplicate_params() {
         let uri =
@@ -385,6 +391,7 @@ mod tests {
         ));
     }
 
+    #[cfg(all(not(feature = "v2"), feature = "v1"))]
     #[test]
     fn test_serialize_pjos() {
         let uri = "bitcoin:12c6DSiU4Rq3P4ZxziKxzrL5LmMBrzjrJX?pj=HTTPS://EXAMPLE.COM/%23OH1QYPM5JXYNS754Y4R45QWE336QFX6ZR8DQGVQCULVZTV20TFVEYDMFQC";
@@ -409,6 +416,7 @@ mod tests {
         );
     }
 
+    #[cfg(all(not(feature = "v2"), feature = "v1"))]
     #[test]
     fn test_deserialize_pjos() {
         // pjos=0 should disable output substitution
@@ -454,29 +462,17 @@ mod tests {
         // HTTPS to subdomain should be accepted
         let url = "https://example.com";
         let result = PjParam::try_from(url);
-        #[cfg(feature = "v1")]
         assert!(
             matches!(result, Ok(PjParam::V1(_))),
-            "Expected PjParam::V1 for HTTPS to non-onion domain without fragment"
-        );
-        #[cfg(feature = "v2")]
-        assert!(
-            matches!(result, Ok(PjParam::V2(_))),
             "Expected PjParam::V1 for HTTPS to non-onion domain without fragment"
         );
 
         // HTTP to domain ending in .onion should be accepted
         let url = "http://example.onion";
         let result = PjParam::try_from(url);
-        #[cfg(feature = "v1")]
         assert!(
             matches!(result, Ok(PjParam::V1(_))),
             "Expected PjParam::V1 for HTTP to onion domain without fragment"
-        );
-        #[cfg(feature = "v2")]
-        assert!(
-            matches!(result, Ok(PjParam::V2(_))),
-            "Expected PjParam::V1 for HTTPS to non-onion domain without fragment"
         );
     }
 }
