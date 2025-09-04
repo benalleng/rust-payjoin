@@ -4,8 +4,13 @@
 
 set -euo pipefail
 
-for file in Cargo-minimal.lock Cargo-recent.lock; do
-    cp -f "$file" Cargo.lock
-    cargo check
-    cp -f Cargo.lock "$file"
-done
+NIGHTLY=$(cat nightly-version)
+
+rm -f Cargo.lock && cargo +"$NIGHTLY" check --all-features -Z direct-minimal-versions
+
+# rm -f Cargo.lock && cargo +"$NIGHTLY" check --all-features -Z minimal-versions
+cp -f Cargo.lock Cargo-minimal.lock
+
+cp -f Cargo-recent.lock Cargo.lock
+cargo check --all-features
+cp -f Cargo.lock Cargo-recent.lock
