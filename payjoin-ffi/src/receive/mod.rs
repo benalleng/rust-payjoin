@@ -1,5 +1,6 @@
 use std::str::FromStr;
 use std::sync::{Arc, RwLock};
+use std::time::Duration;
 
 pub use error::{
     InputContributionError, JsonReply, OutputSubstitutionError, ProtocolError, PsbtInputError,
@@ -15,7 +16,7 @@ pub use crate::error::{ImplementationError, SerdeJsonError};
 use crate::ohttp::OhttpKeys;
 use crate::receive::error::{ReceiverPersistedError, ReceiverReplayError};
 use crate::uri::error::{FeeRateError, IntoUrlError};
-use crate::{ClientResponse, OutputSubstitution, Request, Time};
+use crate::{ClientResponse, OutputSubstitution, Request};
 
 pub mod error;
 
@@ -265,8 +266,8 @@ impl ReceiverBuilder {
         Self(self.0.clone().with_amount(Amount::from_sat(amount_sats)))
     }
 
-    pub fn with_expiry(&self, expiry: Arc<Duration>) -> Self {
-        Self(self.0.clone().with_expiry(expiry.0))
+    pub fn with_expiry(&self, expiry: u64) -> Self {
+        Self(self.0.clone().with_expiry(Duration::from_secs(expiry)))
     }
 
     /// Set the maximum effective fee rate the receiver is willing to pay for their own input/output contributions
