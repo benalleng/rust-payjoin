@@ -104,7 +104,6 @@ impl SessionHistory {
         })
     }
 
-    /// Terminal error from the session if present
     pub fn terminal_error(&self) -> Option<(String, Option<JsonReply>)> {
         self.events.iter().find_map(|event| match event {
             SessionEvent::SessionInvalid(err_str, reply) => Some((err_str.clone(), reply.clone())),
@@ -127,9 +126,14 @@ impl SessionHistory {
         }
 
         let session_context = self.session_context();
-        let json_reply = match self.terminal_error() {
-            Some((_, Some(json_reply))) => json_reply,
-            _ => return Ok(None),
+        let Some(json_reply) = self.events.iter().find_map(|event| {
+            if let SessionEvent::SessionInvalid(_, Some(json_reply)) = event {
+                Some(json_reply.clone())
+            } else {
+                None
+            }
+        }) else {
+            return Ok(None);
         };
         let (req, ctx) = extract_err_req(&json_reply, ohttp_relay, &session_context)?;
         Ok(Some((req, ctx)))

@@ -350,13 +350,17 @@ impl AppTrait for App {
         self.db.get_inactive_send_session_ids()?.into_iter().try_for_each(
             |(session_id, completed_at)| {
                 let persister = SenderPersister::from_id(self.db.clone(), session_id.clone());
-                if let Ok((sender_state, session_history)) = replay_sender_event_log(&persister) {
+                if let Ok((sender_state, _session_history)) = replay_sender_event_log(&persister) {
                     let row = SessionHistoryRow {
                         session_id,
                         role: Role::Sender,
-                        status: sender_state,
+                        status: sender_state.clone(),
                         completed_at: Some(completed_at),
-                        error_message: session_history.terminal_error(),
+                        error_message: match &sender_state {
+                            SendSession::TerminalFailure =>
+                                Some("Session terminal failure".to_string()),
+                            _ => None,
+                        },
                     };
                     send_rows.push(row);
                 }
@@ -367,14 +371,19 @@ impl AppTrait for App {
         self.db.get_inactive_recv_session_ids()?.into_iter().try_for_each(
             |(session_id, completed_at)| {
                 let persister = ReceiverPersister::from_id(self.db.clone(), session_id.clone());
-                if let Ok((receiver_state, session_history)) = replay_receiver_event_log(&persister)
+                if let Ok((receiver_state, _session_history)) =
+                    replay_receiver_event_log(&persister)
                 {
                     let row = SessionHistoryRow {
                         session_id,
                         role: Role::Receiver,
-                        status: receiver_state,
+                        status: receiver_state.clone(),
                         completed_at: Some(completed_at),
-                        error_message: session_history.terminal_error().map(|e| e.0),
+                        error_message: match &receiver_state {
+                            ReceiveSession::TerminalFailure =>
+                                Some("Session terminal failure".to_string()),
+                            _ => None,
+                        },
                     };
                     recv_rows.push(row);
                 }
