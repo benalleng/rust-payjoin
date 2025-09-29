@@ -438,13 +438,12 @@ mod integration {
                 has_error.process_error_response(&err_bytes, err_ctx).save(&persister)?;
 
                 // Ensure the session is closed properly
-                let (_, session_history) = replay_receiver_event_log(&persister)?;
+                let (receiver_state, session_history) = replay_receiver_event_log(&persister)?;
                 assert_eq!(session_history.status(), SessionStatus::Failed);
-                assert_eq!(
-                    session_history.terminal_error().expect("should have error"),
-                    (&server_error).into()
-                );
-
+                match receiver_state {
+                    ReceiveSession::HasReplyableError(e) => assert_eq!(e, has_error),
+                    _ => panic!("Expected HasReplyableError"),
+                };
                 // TODO: Sender should retrieve the error response to complete the error flow
 
                 Ok(())

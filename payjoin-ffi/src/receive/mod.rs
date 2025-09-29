@@ -157,11 +157,6 @@ impl SessionHistory {
         self.0.psbt_ready_for_signing().map(|psbt| Arc::new(psbt.into()))
     }
 
-    /// Terminal error from the session if present
-    pub fn terminal_error(&self) -> Option<Arc<JsonReply>> {
-        self.0.terminal_error().map(|reply| Arc::new(reply.into()))
-    }
-
     /// Fallback transaction from the session if present
     pub fn fallback_tx(&self) -> Option<Arc<crate::Transaction>> {
         self.0.fallback_tx().map(|tx| Arc::new(tx.into()))
@@ -1075,6 +1070,8 @@ impl HasReplyableError {
             self.0.clone().process_error_response(body, ohttp_context.into()),
         ))))
     }
+
+    pub fn error_reply(&self) -> String { self.0.error_reply().to_json().to_string() }
 }
 
 /// Session persister that should save and load events as JSON strings.

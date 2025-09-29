@@ -77,13 +77,6 @@ impl SessionHistory {
             })
             .expect("Session event log must contain at least one event with pj_param")
     }
-
-    pub fn terminal_error(&self) -> Option<String> {
-        self.events.iter().find_map(|event| match event {
-            SessionEvent::SessionInvalid(error) => Some(error.clone()),
-            _ => None,
-        })
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
@@ -190,7 +183,6 @@ mod tests {
         events: Vec<SessionEvent>,
         expected_session_history: SessionHistoryExpectedOutcome,
         expected_sender_state: SendSession,
-        expected_error: Option<String>,
     }
 
     fn run_session_history_test(test: SessionHistoryTest) {
@@ -204,7 +196,6 @@ mod tests {
         assert_eq!(sender, test.expected_sender_state);
         assert_eq!(session_history.fallback_tx(), test.expected_session_history.fallback_tx);
         assert_eq!(*session_history.pj_param(), test.expected_session_history.pj_param);
-        assert_eq!(session_history.terminal_error(), test.expected_error);
     }
 
     #[test]
@@ -278,7 +269,7 @@ mod tests {
             crate::OhttpKeys(
                 ohttp::KeyConfig::new(KEY_ID, KEM, Vec::from(SYMMETRIC)).expect("valid key config"),
             ),
-            HpkeKeyPair::gen_keypair().1,
+            reply_key.1,
         );
         let with_reply_key = WithReplyKey {
             pj_param: pj_param.clone(),
@@ -290,7 +281,6 @@ mod tests {
             events: vec![SessionEvent::CreatedReplyKey(with_reply_key)],
             expected_session_history: SessionHistoryExpectedOutcome { fallback_tx, pj_param },
             expected_sender_state: SendSession::WithReplyKey(sender),
-            expected_error: None,
         };
         run_session_history_test(test);
     }

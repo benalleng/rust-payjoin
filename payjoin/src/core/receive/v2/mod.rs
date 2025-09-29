@@ -1122,6 +1122,8 @@ impl Receiver<HasReplyableError> {
                 },
         }
     }
+
+    pub fn error_reply(&self) -> &JsonReply { &self.error_reply }
 }
 
 /// Derive a mailbox endpoint on a directory given a [`ShortId`].
