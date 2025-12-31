@@ -29,7 +29,7 @@ jobs:
         uses: DeterminateSystems/magic-nix-cache-action@main
 
       - name: Validate recreated lockfile
-        run: nix build .#checks.x86_64-linux.${{ matrix.rust }} -L --recreate-lock-file --no-write-lock-file
+        run: nix build .#checks.x86_64-linux.${{ matrix.checks }} -L --recreate-lock-file --no-write-lock-file
 
 
   update-lock-file:
