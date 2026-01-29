@@ -23,7 +23,7 @@ pub(crate) use error::{InternalBuildSenderError, InternalProposalError, Internal
 use url::Url;
 
 use crate::output_substitution::OutputSubstitution;
-use crate::psbt::{PsbtExt, NON_WITNESS_INPUT_WEIGHT};
+use crate::psbt::{AddressTypeError, PsbtExt, NON_WITNESS_INPUT_WEIGHT};
 use crate::Version;
 
 // See usize casts
@@ -1533,4 +1533,3 @@ mod test {
         }
     }
 }
-use crate::psbt::AddressTypeError;

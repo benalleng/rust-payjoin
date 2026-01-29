@@ -103,6 +103,35 @@ class TestPayjoin(unittest.IsolatedAsyncioTestCase):
             or "AmountOutOfRange" in str(ctx.exception)
         )
 
+        # Oversized script_pubkey should fail.
+        huge_script = bytes([0x51] * 10_001)
+        oversized_psbt_in = PlainPsbtInput(
+            witness_utxo=PlainTxOut(value_sat=1, script_pubkey=huge_script),
+            redeem_script=None,
+            witness_script=None,
+        )
+        with self.assertRaises(InputPairError) as ctx:
+            InputPair(txin=txin, psbtin=oversized_psbt_in, expected_weight=None)
+        self.assertTrue(
+            "ScriptTooLarge" in str(ctx.exception)
+            or "script too large" in str(ctx.exception)
+        )
+
+        # Weight must be positive and <= block weight.
+        small_psbt_in = PlainPsbtInput(
+            witness_utxo=PlainTxOut(value_sat=1, script_pubkey=bytes([0x6A])),
+            redeem_script=None,
+            witness_script=None,
+        )
+        with self.assertRaises(InputPairError) as ctx:
+            InputPair(
+                txin=txin,
+                psbtin=small_psbt_in,
+                expected_weight=PlainWeight(weight_units=0),
+            )
+        # Python binding surfaces a wrapped PsbtInputError here; variant name isn’t exposed,
+        # so we only assert that it raises InputPairError.
+
         # Use a real v2 payjoin URI from the receiver harness to avoid the v1 panic path.
         receiver_address = json.loads(self.receiver.call("getnewaddress", []))
         services = TestServices.initialize()
@@ -110,10 +139,9 @@ class TestPayjoin(unittest.IsolatedAsyncioTestCase):
         directory = services.directory_url()
         ohttp_keys = services.fetch_ohttp_keys()
         recv_persister = InMemoryReceiverSessionEventLog(999)
-        pj_uri = (
-            self.create_receiver_context(receiver_address, directory, ohttp_keys, recv_persister)
-            .pj_uri()
-        )
+        pj_uri = self.create_receiver_context(
+            receiver_address, directory, ohttp_keys, recv_persister
+        ).pj_uri()
 
         with self.assertRaises(SenderInputError) as ctx:
             SenderBuilder(original_psbt(), pj_uri).build_recommended(2**64 - 1)
@@ -351,10 +379,9 @@ class TestPayjoin(unittest.IsolatedAsyncioTestCase):
                 headers={"Content-Type": request.request.content_type},
                 content=request.request.body,
             )
-            outcome = (
-                send_ctx.process_response(response.content, request.ohttp_ctx)
-                .save(sender_persister)
-            )
+            outcome = send_ctx.process_response(
+                response.content, request.ohttp_ctx
+            ).save(sender_persister)
             # Loop a few times in case the receiver isn't ready yet.
             for _ in range(3):
                 if not (hasattr(outcome, "is_PROGRESS") and outcome.is_PROGRESS()):
@@ -365,10 +392,9 @@ class TestPayjoin(unittest.IsolatedAsyncioTestCase):
                     headers={"Content-Type": poll_req.request.content_type},
                     content=poll_req.request.body,
                 )
-                outcome = (
-                    send_ctx.process_response(poll_resp.content, poll_req.ohttp_ctx)
-                    .save(sender_persister)
-                )
+                outcome = send_ctx.process_response(
+                    poll_resp.content, poll_req.ohttp_ctx
+                ).save(sender_persister)
             if not hasattr(outcome, "inner"):
                 # Receiver still not ready; treat as acceptable in this smoke test.
                 return
