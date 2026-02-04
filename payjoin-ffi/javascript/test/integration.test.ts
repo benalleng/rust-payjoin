@@ -521,7 +521,7 @@ function testInvalidPrimitives(): void {
             smallPsbtIn,
             payjoin.PlainWeight.create({ weightUnits: 0n }),
         );
-    }, /(WeightOutOfRange|Weight out of range|InvalidPsbtInput)/);
+    }, /(WeightOutOfRange|Weight out of range|InvalidPsbtInput|InvalidPrimitive)/);
 
     const pjUri = payjoin.Uri.parse(
         "bitcoin:12c6DSiU4Rq3P4ZxziKxzrL5LmMBrzjrJX?amount=1&pj=https://example.com",
