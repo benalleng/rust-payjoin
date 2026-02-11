@@ -173,10 +173,11 @@
           name: pkg: tag:
           let
             releasePkg = pkg.overrideAttrs (final: prev: { CARGO_PROFILE = "release"; });
+            githubActor = builtins.getEnv "GITHUB_ACTOR";
           in
           nix2containerPkgs.nix2container.buildImage {
             inherit tag;
-            name = "docker.io/payjoin/${name}";
+            name = "docker.io/${githubActor}/${name}";
             copyToRoot = pkgs.buildEnv {
               name = "root";
               paths = [ releasePkg ];
