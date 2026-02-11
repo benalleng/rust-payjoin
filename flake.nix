@@ -170,13 +170,13 @@
 
         # Helper to create a container image for a package
         mkContainerImage =
-          name: pkg: tag:
+          registry: name: pkg: tag:
           let
             releasePkg = pkg.overrideAttrs (final: prev: { CARGO_PROFILE = "release"; });
           in
           nix2containerPkgs.nix2container.buildImage {
             inherit tag;
-            name = "docker.io/payjoin/${name}";
+            name = "${registry}/${name}";
             copyToRoot = pkgs.buildEnv {
               name = "root";
               paths = [ releasePkg ];
@@ -191,9 +191,15 @@
         containerImages =
           let
             tag = self.shortRev or "dirty";
+            githubActor = builtins.getEnv "GITHUB_ACTOR";
           in
           {
-            "payjoin-service-image" = mkContainerImage "payjoin-service" packages.payjoin-service tag;
+            "payjoin-service-docker-image" =
+              mkContainerImage "docker.io/payjoin" "payjoin-service" packages.payjoin-service
+                tag;
+            "payjoin-service-github-image" =
+              mkContainerImage "ghcr.io/${githubActor}" "payjoin-service" packages.payjoin-service
+                tag;
           };
 
         devShells = builtins.mapAttrs (

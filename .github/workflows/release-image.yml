@@ -1,6 +1,9 @@
 name: "Build and publish Docker image"
 
 on:
+  pull_request:
+    paths:
+      - payjoin-service/**
   push:
     tags:
       - payjoin-service-**
@@ -25,8 +28,14 @@ jobs:
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.PAYJOIN_DOCKER_RW }}
+          registry: ${{ github.event_name == 'pull_request' && 'ghcr.io' || '' }}
+          username: ${{ github.event_name == 'pull_request' && github.actor || github.repository_owner }}
+          password: ${{ github.event_name == 'pull_request' && secrets.GITHUB_TOKEN || secrets.PAYJOIN_DOCKER_RW }}
 
       - name: Build and release image
-        run: nix run .#packages.x86_64-linux.payjoin-service-image.copyToRegistry
+        run: |
+          if [ ${{ github.event_name }} == 'pull_request' ]; then
+            nix run --impure .#packages.x86_64-linux.payjoin-service-github-image.copyToRegistry
+          else
+            nix run .#packages.x86_64-linux.payjoin-service-docker-image.copyToRegistry
+          fi
