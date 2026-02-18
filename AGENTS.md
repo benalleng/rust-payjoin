@@ -51,6 +51,13 @@ dependency change:
 bash contrib/update-lock-files.sh
 ```
 
+## Building and Testing
+
+```sh
+cargo build --all-features
+cargo test --all-features
+```
+
 ## AI Disclosure
 
 Required in PR body. Do **not** add `Co-Authored-By` in commits.
