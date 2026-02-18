@@ -41,7 +41,7 @@ mod test {
             (hrp.as_str().len() + 1) as f32 + (bytes.len() as f32 * 8.0 / 5.0).ceil()
         );
 
-        // TODO assert uppercase
+        assert!(encoded.chars().all(|c| c.is_ascii_uppercase() || c.is_numeric()));
 
         // should not error
         let corrupted = encoded + "QQPP";
