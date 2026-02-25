@@ -1,5 +1,17 @@
 # Payjoin Changelog
 
+## 1.0.0-rc.2
+
+This release candidate introduces async persistence, WASM target support,
+improved taproot input weight derivation, and various bug fixes.
+
+- Introduce `AsyncSessionPersister` and `replay_event_log_async` (#1235, #1266)
+- Deduplicate PSBT inputs in `contribute_inputs` (#1254)
+- Return error on duplicate input contribution (#1257)
+- Derive P2TR input weight from witness data (#1200)
+- Skip `check_payment` in `Receiver<Monitor>` for non-segwit senders (#1218)
+- Use `web-time` for WASM targets (#1190)
+
 ## 1.0.0-rc.1
 
 This release candidate fixes a BIP78 spec compliance bug, and an issue with the BIP77 sender when polling an arbitrary relay via RFC9540.
