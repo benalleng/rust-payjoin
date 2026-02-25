@@ -103,6 +103,8 @@ jobs:
         run: bash contrib/coverage.sh
       - name: "Upload report to coveralls"
         uses: coverallsapp/github-action@v2
+        with:
+          fail-on-error: false
 
   CodeSpell:
     name: Code spell check
