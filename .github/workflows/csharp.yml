@@ -31,6 +31,11 @@ jobs:
         with:
           dotnet-version: "8.0.x"
 
+      - name: Verify .NET SDK
+        run: |
+          dotnet --version
+          dotnet --list-sdks
+
       - name: Generate bindings and binaries (unix)
         if: matrix.os != 'windows-latest'
         run: bash ./scripts/generate_bindings.sh
