@@ -777,6 +777,20 @@ dependencies = [
 
 [[package]]
 name = "cargo_metadata"
+version = "0.18.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2d886547e41f740c616ae73108f6eb70afe6d940c7bc697cb30f13daec073037"
+dependencies = [
+ "camino",
+ "cargo-platform",
+ "semver",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.63",
+]
+
+[[package]]
+name = "cargo_metadata"
 version = "0.19.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dd5eb614ed4c27c5d706420e4320fbe3216ab31fa1c33cd8246ac36dae4479ba"
@@ -4704,7 +4718,7 @@ checksum = "c866f627c3f04c3df068b68bb2d725492caaa539dd313e2a9d26bb85b1a32f4e"
 dependencies = [
  "anyhow",
  "camino",
- "cargo_metadata",
+ "cargo_metadata 0.19.2",
  "clap 4.5.46",
  "uniffi_bindgen",
  "uniffi_build",
@@ -4721,7 +4735,7 @@ dependencies = [
  "anyhow",
  "askama",
  "camino",
- "cargo_metadata",
+ "cargo_metadata 0.19.2",
  "clap 3.2.25",
  "extend",
  "fs-err 2.11.0",
@@ -4739,10 +4753,11 @@ dependencies = [
 [[package]]
 name = "uniffi-dart"
 version = "0.1.0"
-source = "git+https://github.com/Uniffi-Dart/uniffi-dart.git?rev=f830323#f830323646fb6fbca89f9798dcf425f339f166ca"
+source = "git+https://github.com/chavic/uniffi-dart.git?rev=2078791#2078791fe1f93e7a71a8a25c9934adb54d97d52e"
 dependencies = [
  "anyhow",
  "camino",
+ "cargo_metadata 0.18.1",
  "genco",
  "heck 0.5.0",
  "lazy_static",
@@ -4765,7 +4780,7 @@ dependencies = [
  "anyhow",
  "askama",
  "camino",
- "cargo_metadata",
+ "cargo_metadata 0.19.2",
  "fs-err 2.11.0",
  "glob",
  "goblin",
@@ -4809,7 +4824,7 @@ dependencies = [
 [[package]]
 name = "uniffi_dart_macro"
 version = "0.1.0"
-source = "git+https://github.com/Uniffi-Dart/uniffi-dart.git?rev=f830323#f830323646fb6fbca89f9798dcf425f339f166ca"
+source = "git+https://github.com/chavic/uniffi-dart.git?rev=2078791#2078791fe1f93e7a71a8a25c9934adb54d97d52e"
 dependencies = [
  "futures",
  "proc-macro2",
