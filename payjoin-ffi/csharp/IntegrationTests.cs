@@ -1,5 +1,6 @@
+using Payjoin.Http;
 using System.Text.Json;
-using uniffi.payjoin;
+using Payjoin;
 using Xunit;
 
 namespace Payjoin.Tests
@@ -324,6 +325,21 @@ namespace Payjoin.Tests
         }
 
         [Fact]
+        public async Task FetchAndDecodeOhttpKeysViaRelayProxy()
+        {
+            var cancellationToken = TestContext.Current.CancellationToken;
+
+            _services!.WaitForServicesReady();
+            var ohttpRelay = _services.OhttpRelayUrl();
+            var directory = _services.DirectoryUrl();
+            var cert = _services.Cert();
+
+            using var keys = await OhttpKeysClient.GetOhttpKeysAsync(new System.Uri(ohttpRelay), new System.Uri(directory), cert, cancellationToken);
+
+            Assert.NotNull(keys);
+        }
+
+        [Fact]
         public void TestFfiValidation()
         {
             var tooLargeAmount = 21_000_000UL * 100_000_000UL + 1;
@@ -395,7 +411,7 @@ namespace Payjoin.Tests
                 );
                 new InputPair(txin, psbtIn, new PlainWeight(0));
             });
-            
+
             var directory = _services!.DirectoryUrl();
             _services.WaitForServicesReady();
             var ohttpKeys = _services.FetchOhttpKeys();
@@ -432,9 +448,9 @@ namespace Payjoin.Tests
                 Assert.Skip($"test-utils are not available: {ex.GetType().Name}: {ex.Message}");
             }
 
-            _ = _env.GetBitcoind();
-            var receiver = _env.GetReceiver();
-            var sender = _env.GetSender();
+            using var bitcoind = _env.GetBitcoind();
+            using var receiver = _env.GetReceiver();
+            using var sender = _env.GetSender();
 
             var receiverAddressJson = RpcCall(receiver, "getnewaddress");
             var receiverAddress = JsonSerializer.Deserialize<string>(receiverAddressJson)!;
