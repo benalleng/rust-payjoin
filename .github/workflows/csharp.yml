@@ -31,6 +31,16 @@ jobs:
         with:
           dotnet-version: "8.0.x"
 
+      - name: Configure .NET environment
+        run: |
+          echo "DOTNET_ROOT=$HOME/.dotnet" >> $GITHUB_ENV
+          echo "DOTNET_MULTILEVEL_LOOKUP=0" >> $GITHUB_ENV
+          echo "$HOME/.dotnet" >> $GITHUB_PATH
+          echo "$HOME/.dotnet/bin" >> $GITHUB_PATH
+
+      - name: Verify .NET version
+        run: dotnet --version
+
       - name: Generate bindings and binaries (unix)
         if: matrix.os != 'windows-latest'
         run: bash ./scripts/generate_bindings.sh
@@ -41,4 +51,4 @@ jobs:
         run: ./scripts/generate_bindings.ps1
 
       - name: Run tests
-        run: dotnet test --no-restore --logger "console;verbosity=minimal"
+        run: dotnet test --logger "console;verbosity=minimal"
