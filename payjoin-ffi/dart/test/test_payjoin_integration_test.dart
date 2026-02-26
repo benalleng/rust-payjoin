@@ -69,7 +69,10 @@ class MempoolAcceptanceCallback implements payjoin.CanBroadcast {
   bool callback(Uint8List tx) {
     try {
       final hexTx = bytesToHex(tx);
-      final resultJson = connection.call("testmempoolaccept", ['["$hexTx"]']);
+      final resultJson = connection.call(
+        method: "testmempoolaccept",
+        params: ['["$hexTx"]'],
+      );
       final decoded = jsonDecode(resultJson);
       return decoded[0]['allowed'] == true;
     } catch (e) {
@@ -93,7 +96,10 @@ class IsScriptOwnedCallback implements payjoin.IsScriptOwned {
     try {
       final scriptHex = hex.encode(script);
       final decodedScript = jsonDecode(
-        connection.call("decodescript", [jsonEncode(scriptHex)]),
+        connection.call(
+          method: "decodescript",
+          params: [jsonEncode(scriptHex)],
+        ),
       );
 
       final candidates = <String>[];
@@ -123,7 +129,7 @@ class IsScriptOwnedCallback implements payjoin.IsScriptOwned {
 
       for (final addr in candidates) {
         final info = jsonDecode(
-          connection.call("getaddressinfo", [jsonEncode(addr)]),
+          connection.call(method: "getaddressinfo", params: [jsonEncode(addr)]),
         );
         if (info["ismine"] == true) {
           return true;
@@ -154,7 +160,9 @@ class ProcessPsbtCallback implements payjoin.ProcessPsbt {
 
   @override
   String callback(String psbt) {
-    final res = jsonDecode(connection.call("walletprocesspsbt", [psbt]));
+    final res = jsonDecode(
+      connection.call(method: "walletprocesspsbt", params: [psbt]),
+    );
     return res["psbt"];
   }
 }
@@ -166,10 +174,10 @@ payjoin.Initialized create_receiver_context(
   InMemoryReceiverPersister persister,
 ) {
   var receiver = payjoin.ReceiverBuilder(
-    address,
-    directory,
-    ohttp_keys,
-  ).build().save(persister);
+    address: address,
+    directory: directory,
+    ohttpKeys: ohttp_keys,
+  ).build().save(persister: persister);
   return receiver;
 }
 
@@ -177,29 +185,32 @@ String build_sweep_psbt(payjoin.RpcClient sender, payjoin.PjUri pj_uri) {
   var outputs = <String, dynamic>{};
   outputs[pj_uri.address()] = 50;
   var psbt = jsonDecode(
-    sender.call("walletcreatefundedpsbt", [
-      jsonEncode([]),
-      jsonEncode(outputs),
-      jsonEncode(0),
-      jsonEncode({
-        "lockUnspents": true,
-        "fee_rate": 10,
-        "subtractFeeFromOutputs": [0],
-      }),
-    ]),
+    sender.call(
+      method: "walletcreatefundedpsbt",
+      params: [
+        jsonEncode([]),
+        jsonEncode(outputs),
+        jsonEncode(0),
+        jsonEncode({
+          "lockUnspents": true,
+          "fee_rate": 10,
+          "subtractFeeFromOutputs": [0],
+        }),
+      ],
+    ),
   )["psbt"];
   return jsonDecode(
-    sender.call("walletprocesspsbt", [
-      psbt,
-      jsonEncode(true),
-      jsonEncode("ALL"),
-      jsonEncode(false),
-    ]),
+    sender.call(
+      method: "walletprocesspsbt",
+      params: [psbt, jsonEncode(true), jsonEncode("ALL"), jsonEncode(false)],
+    ),
   )["psbt"];
 }
 
 List<payjoin.InputPair> get_inputs(payjoin.RpcClient rpc_connection) {
-  var utxos = jsonDecode(rpc_connection.call("listunspent", []));
+  var utxos = jsonDecode(
+    rpc_connection.call(method: "listunspent", params: []),
+  );
   List<payjoin.InputPair> inputs = [];
   for (var utxo in utxos) {
     final txid = utxo["txid"] as String;
@@ -211,14 +222,23 @@ List<payjoin.InputPair> get_inputs(payjoin.RpcClient rpc_connection) {
     final amountSat = (amountBtc * 100000000).round();
 
     final txin = payjoin.PlainTxIn(
-      payjoin.PlainOutPoint(txid, vout),
-      Uint8List(0),
-      0,
-      <Uint8List>[],
+      previousOutput: payjoin.PlainOutPoint(txid: txid, vout: vout),
+      scriptSig: Uint8List(0),
+      sequence: 0,
+      witness: <Uint8List>[],
     );
-    final witnessUtxo = payjoin.PlainTxOut(amountSat, scriptPubKey);
-    final psbt_in = payjoin.PlainPsbtInput(witnessUtxo, null, null);
-    inputs.add(payjoin.InputPair(txin, psbt_in, null));
+    final witnessUtxo = payjoin.PlainTxOut(
+      valueSat: amountSat,
+      scriptPubkey: scriptPubKey,
+    );
+    final psbt_in = payjoin.PlainPsbtInput(
+      witnessUtxo: witnessUtxo,
+      redeemScript: null,
+      witnessScript: null,
+    );
+    inputs.add(
+      payjoin.InputPair(txin: txin, psbtin: psbt_in, expectedWeight: null),
+    );
   }
 
   return inputs;
@@ -229,8 +249,8 @@ Future<payjoin.PayjoinProposalReceiveSession> process_provisional_proposal(
   InMemoryReceiverPersister recv_persister,
 ) async {
   final payjoin_proposal = proposal
-      .finalizeProposal(ProcessPsbtCallback(receiver))
-      .save(recv_persister);
+      .finalizeProposal(processPsbt: ProcessPsbtCallback(receiver))
+      .save(persister: recv_persister);
   return payjoin.PayjoinProposalReceiveSession(payjoin_proposal);
 }
 
@@ -238,7 +258,9 @@ Future<payjoin.PayjoinProposalReceiveSession> process_wants_fee_range(
   payjoin.WantsFeeRange proposal,
   InMemoryReceiverPersister recv_persister,
 ) async {
-  final wants_fee_range = proposal.applyFeeRange(1, 10).save(recv_persister);
+  final wants_fee_range = proposal
+      .applyFeeRange(minFeeRateSatPerVb: 1, maxEffectiveFeeRateSatPerVb: 10)
+      .save(persister: recv_persister);
   return await process_provisional_proposal(wants_fee_range, recv_persister);
 }
 
@@ -247,9 +269,9 @@ Future<payjoin.PayjoinProposalReceiveSession> process_wants_inputs(
   InMemoryReceiverPersister recv_persister,
 ) async {
   final provisional_proposal = proposal
-      .contributeInputs(get_inputs(receiver))
+      .contributeInputs(replacementInputs: get_inputs(receiver))
       .commitInputs()
-      .save(recv_persister);
+      .save(persister: recv_persister);
   return await process_wants_fee_range(provisional_proposal, recv_persister);
 }
 
@@ -257,7 +279,7 @@ Future<payjoin.PayjoinProposalReceiveSession> process_wants_outputs(
   payjoin.WantsOutputs proposal,
   InMemoryReceiverPersister recv_persister,
 ) async {
-  final wants_inputs = proposal.commitOutputs().save(recv_persister);
+  final wants_inputs = proposal.commitOutputs().save(persister: recv_persister);
   return await process_wants_inputs(wants_inputs, recv_persister);
 }
 
@@ -266,8 +288,10 @@ Future<payjoin.PayjoinProposalReceiveSession> process_outputs_unknown(
   InMemoryReceiverPersister recv_persister,
 ) async {
   final wants_outputs = proposal
-      .identifyReceiverOutputs(IsScriptOwnedCallback(receiver))
-      .save(recv_persister);
+      .identifyReceiverOutputs(
+        isReceiverOutput: IsScriptOwnedCallback(receiver),
+      )
+      .save(persister: recv_persister);
   return await process_wants_outputs(wants_outputs, recv_persister);
 }
 
@@ -276,8 +300,8 @@ Future<payjoin.PayjoinProposalReceiveSession> process_maybe_inputs_seen(
   InMemoryReceiverPersister recv_persister,
 ) async {
   final outputs_unknown = proposal
-      .checkNoInputsSeenBefore(CheckInputsNotSeenCallback(receiver))
-      .save(recv_persister);
+      .checkNoInputsSeenBefore(isKnown: CheckInputsNotSeenCallback(receiver))
+      .save(persister: recv_persister);
   return await process_outputs_unknown(outputs_unknown, recv_persister);
 }
 
@@ -286,8 +310,8 @@ Future<payjoin.PayjoinProposalReceiveSession> process_maybe_inputs_owned(
   InMemoryReceiverPersister recv_persister,
 ) async {
   final maybe_inputs_owned = proposal
-      .checkInputsNotOwned(IsScriptOwnedCallback(receiver))
-      .save(recv_persister);
+      .checkInputsNotOwned(isOwned: IsScriptOwnedCallback(receiver))
+      .save(persister: recv_persister);
   return await process_maybe_inputs_seen(maybe_inputs_owned, recv_persister);
 }
 
@@ -296,8 +320,11 @@ Future<payjoin.PayjoinProposalReceiveSession> process_unchecked_proposal(
   InMemoryReceiverPersister recv_persister,
 ) async {
   final unchecked_proposal = proposal
-      .checkBroadcastSuitability(null, MempoolAcceptanceCallback(receiver))
-      .save(recv_persister);
+      .checkBroadcastSuitability(
+        minFeeRate: null,
+        canBroadcast: MempoolAcceptanceCallback(receiver),
+      )
+      .save(persister: recv_persister);
   return await process_maybe_inputs_owned(unchecked_proposal, recv_persister);
 }
 
@@ -307,15 +334,15 @@ Future<payjoin.ReceiveSession?> retrieve_receiver_proposal(
   String ohttp_relay,
 ) async {
   var agent = http.Client();
-  var request = receiver.createPollRequest(ohttp_relay);
+  var request = receiver.createPollRequest(ohttpRelay: ohttp_relay);
   var response = await agent.post(
     Uri.parse(request.request.url),
     headers: {"Content-Type": request.request.contentType},
     body: request.request.body,
   );
   var res = receiver
-      .processResponse(response.bodyBytes, request.clientResponse)
-      .save(recv_persister);
+      .processResponse(body: response.bodyBytes, ctx: request.clientResponse)
+      .save(persister: recv_persister);
 
   if (res is payjoin.StasisInitializedTransitionOutcome) {
     return null;
@@ -378,35 +405,47 @@ void main() {
       final tooLargeAmount = 21000000 * 100000000 + 1;
       // Invalid outpoint should fail before amount checks.
       final txinInvalid = payjoin.PlainTxIn(
-        payjoin.PlainOutPoint("00" * 64, 0),
-        Uint8List(0),
-        0,
-        <Uint8List>[],
+        previousOutput: payjoin.PlainOutPoint(txid: "00" * 64, vout: 0),
+        scriptSig: Uint8List(0),
+        sequence: 0,
+        witness: <Uint8List>[],
       );
       final psbtInDummy = payjoin.PlainPsbtInput(
-        payjoin.PlainTxOut(1, Uint8List.fromList([0x6a])),
-        null,
-        null,
+        witnessUtxo: payjoin.PlainTxOut(
+          valueSat: 1,
+          scriptPubkey: Uint8List.fromList([0x6a]),
+        ),
+        redeemScript: null,
+        witnessScript: null,
       );
       expect(
-        () => payjoin.InputPair(txinInvalid, psbtInDummy, null),
+        () => payjoin.InputPair(
+          txin: txinInvalid,
+          psbtin: psbtInDummy,
+          expectedWeight: null,
+        ),
         throwsA(isA<payjoin.InputPairException>()),
       );
 
       final txin = payjoin.PlainTxIn(
         // valid 32-byte txid so we exercise amount overflow instead of outpoint parsing
-        payjoin.PlainOutPoint("00" * 32, 0),
-        Uint8List(0),
-        0,
-        <Uint8List>[],
+        previousOutput: payjoin.PlainOutPoint(txid: "00" * 32, vout: 0),
+        scriptSig: Uint8List(0),
+        sequence: 0,
+        witness: <Uint8List>[],
       );
       final txout = payjoin.PlainTxOut(
-        tooLargeAmount,
-        Uint8List.fromList([0x6a]),
+        valueSat: tooLargeAmount,
+        scriptPubkey: Uint8List.fromList([0x6a]),
       );
-      final psbtIn = payjoin.PlainPsbtInput(txout, null, null);
+      final psbtIn = payjoin.PlainPsbtInput(
+        witnessUtxo: txout,
+        redeemScript: null,
+        witnessScript: null,
+      );
       expect(
-        () => payjoin.InputPair(txin, psbtIn, null),
+        () =>
+            payjoin.InputPair(txin: txin, psbtin: psbtIn, expectedWeight: null),
         throwsA(isA<payjoin.InputPairException>()),
       );
 
@@ -414,31 +453,32 @@ void main() {
       final envLocal = test_utils.initBitcoindSenderReceiver();
       final receiverRpc = envLocal.getReceiver();
       final receiverAddress =
-          jsonDecode(receiverRpc.call("getnewaddress", [])) as String;
+          jsonDecode(receiverRpc.call(method: "getnewaddress", params: []))
+              as String;
       final services = test_utils.TestServices.initialize();
       services.waitForServicesReady();
       final directory = services.directoryUrl();
       final ohttpKeys = services.fetchOhttpKeys();
       final recvPersister = InMemoryReceiverPersister("prim");
       final pjUri = payjoin.ReceiverBuilder(
-        receiverAddress,
-        directory,
-        ohttpKeys,
-      ).build().save(recvPersister).pjUri();
+        address: receiverAddress,
+        directory: directory,
+        ohttpKeys: ohttpKeys,
+      ).build().save(persister: recvPersister).pjUri();
 
       final psbt = test_utils.originalPsbt();
       // Large enough to overflow fee * weight but still parsable as Dart int.
       const overflowFeeRate = 5000000000000; // sat/kwu
       expect(
         () => payjoin.SenderBuilder(
-          psbt,
-          pjUri,
-        ).buildRecommended(overflowFeeRate),
+          psbt: psbt,
+          uri: pjUri,
+        ).buildRecommended(minFeeRate: overflowFeeRate),
         throwsA(isA<payjoin.SenderInputException>()),
       );
 
       expect(
-        () => pjUri.setAmountSats(tooLargeAmount),
+        () => pjUri.setAmountSats(amountSats: tooLargeAmount),
         throwsA(isA<payjoin.FfiValidationException>()),
       );
     });
@@ -449,7 +489,8 @@ void main() {
       receiver = env.getReceiver();
       sender = env.getSender();
       var receiver_address =
-          jsonDecode(receiver.call("getnewaddress", [])) as String;
+          jsonDecode(receiver.call(method: "getnewaddress", params: []))
+              as String;
       var services = test_utils.TestServices.initialize();
 
       services.waitForServicesReady();
@@ -481,11 +522,11 @@ void main() {
       var pj_uri = session.pjUri();
       var psbt = build_sweep_psbt(sender, pj_uri);
       payjoin.WithReplyKey req_ctx = payjoin.SenderBuilder(
-        psbt,
-        pj_uri,
-      ).buildRecommended(1000).save(sender_persister);
+        psbt: psbt,
+        uri: pj_uri,
+      ).buildRecommended(minFeeRate: 1000).save(persister: sender_persister);
       payjoin.RequestOhttpContext request = req_ctx.createV2PostRequest(
-        ohttp_relay,
+        ohttpRelay: ohttp_relay,
       );
       var response = await agent.post(
         Uri.parse(request.request.url),
@@ -493,8 +534,11 @@ void main() {
         body: request.request.body,
       );
       payjoin.PollingForProposal send_ctx = req_ctx
-          .processResponse(response.bodyBytes, request.ohttpCtx)
-          .save(sender_persister);
+          .processResponse(
+            response: response.bodyBytes,
+            postCtx: request.ohttpCtx,
+          )
+          .save(persister: sender_persister);
       // POST Original PSBT
 
       // **********************
@@ -513,7 +557,7 @@ void main() {
       payjoin.PayjoinProposal proposal =
           (payjoin_proposal as payjoin.PayjoinProposalReceiveSession).inner;
       payjoin.RequestResponse request_response = proposal.createPostRequest(
-        ohttp_relay,
+        ohttpRelay: ohttp_relay,
       );
       var fallback_response = await agent.post(
         Uri.parse(request_response.request.url),
@@ -521,8 +565,8 @@ void main() {
         body: request_response.request.body,
       );
       proposal.processResponse(
-        fallback_response.bodyBytes,
-        request_response.clientResponse,
+        body: fallback_response.bodyBytes,
+        ohttpContext: request_response.clientResponse,
       );
 
       // **********************
@@ -533,7 +577,7 @@ void main() {
       var attempts = 0;
       while (true) {
         payjoin.RequestOhttpContext ohttp_context_request = send_ctx
-            .createPollRequest(ohttp_relay);
+            .createPollRequest(ohttpRelay: ohttp_relay);
         var final_response = await agent.post(
           Uri.parse(ohttp_context_request.request.url),
           headers: {"Content-Type": ohttp_context_request.request.contentType},
@@ -541,10 +585,10 @@ void main() {
         );
         poll_outcome = send_ctx
             .processResponse(
-              final_response.bodyBytes,
-              ohttp_context_request.ohttpCtx,
+              response: final_response.bodyBytes,
+              ohttpCtx: ohttp_context_request.ohttpCtx,
             )
-            .save(sender_persister);
+            .save(persister: sender_persister);
 
         if (poll_outcome
             is payjoin.ProgressPollingForProposalTransitionOutcome) {
@@ -561,23 +605,41 @@ void main() {
       final progressOutcome =
           poll_outcome as payjoin.ProgressPollingForProposalTransitionOutcome;
       var payjoin_psbt = jsonDecode(
-        sender.call("walletprocesspsbt", [progressOutcome.psbtBase64]),
+        sender.call(
+          method: "walletprocesspsbt",
+          params: [progressOutcome.psbtBase64],
+        ),
       )["psbt"];
       var final_psbt = jsonDecode(
-        sender.call("finalizepsbt", [payjoin_psbt, jsonEncode(false)]),
+        sender.call(
+          method: "finalizepsbt",
+          params: [payjoin_psbt, jsonEncode(false)],
+        ),
       )["psbt"];
       var final_tx_hex = jsonDecode(
-        sender.call("finalizepsbt", [final_psbt, jsonEncode(true)]),
+        sender.call(
+          method: "finalizepsbt",
+          params: [final_psbt, jsonEncode(true)],
+        ),
       )["hex"];
-      sender.call("sendrawtransaction", [jsonEncode(final_tx_hex)]);
+      sender.call(
+        method: "sendrawtransaction",
+        params: [jsonEncode(final_tx_hex)],
+      );
 
       // Check resulting transaction and balances
       var decodedTx = jsonDecode(
-        sender.call("decoderawtransaction", [jsonEncode(final_tx_hex)]),
+        sender.call(
+          method: "decoderawtransaction",
+          params: [jsonEncode(final_tx_hex)],
+        ),
       );
       var network_fees =
           (jsonDecode(
-                    sender.call("decodepsbt", [jsonEncode(final_psbt)]),
+                    sender.call(
+                      method: "decodepsbt",
+                      params: [jsonEncode(final_psbt)],
+                    ),
                   )["fee"]
                   as num)
               .toDouble();
@@ -586,11 +648,11 @@ void main() {
       expect(decodedTx["vout"].length, 1);
       expect(
         jsonDecode(
-          receiver.call("getbalances", []),
+          receiver.call(method: "getbalances", params: []),
         )["mine"]["untrusted_pending"],
         100 - network_fees,
       );
-      expect(jsonDecode(sender.call("getbalance", [])), 0.0);
+      expect(jsonDecode(sender.call(method: "getbalance", params: [])), 0.0);
     }, timeout: const Timeout(Duration(minutes: 5)));
   });
 }
