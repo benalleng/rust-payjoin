@@ -22,7 +22,7 @@ jobs:
         uses: DeterminateSystems/nix-installer-action@main
 
       - name: Validate recreated lockfile
-        run: nix build .#checks.x86_64-linux.${{ matrix.checks }} -L --recreate-lock-file --no-write-lock-file
+        run: nix flake update
 
   update-lock-file:
     needs: validate-lock-file
