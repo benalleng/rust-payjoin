@@ -7,6 +7,8 @@
     <!-- Required by UniFFI-generated interop code (pointer usage in payjoin.cs); disabling /unsafe fails with CS0227. -->
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <IsPackable>false</IsPackable>
+    <!-- Disable apphost generation to avoid CI issues with Ubuntu runner -->
+    <GenerateAppHost>false</GenerateAppHost>
   </PropertyGroup>
 
   <ItemGroup>

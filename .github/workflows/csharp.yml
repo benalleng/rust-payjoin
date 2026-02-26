@@ -38,9 +38,6 @@ jobs:
           echo "$HOME/.dotnet" >> $GITHUB_PATH
           echo "$HOME/.dotnet/bin" >> $GITHUB_PATH
 
-      - name: Verify .NET version
-        run: dotnet --version
-
       - name: Generate bindings and binaries (unix)
         if: matrix.os != 'windows-latest'
         run: bash ./scripts/generate_bindings.sh
