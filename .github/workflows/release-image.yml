@@ -20,13 +20,6 @@ jobs:
       contents: read
       packages: write
     steps:
-      - name: Wait for other workflows
-        uses: lewagon/wait-on-check-action@v1.5.0
-        with:
-          ref: ${{ github.sha }}
-          running-workflow-name: "Build and publish Docker image"
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -76,7 +69,7 @@ jobs:
 
           nix build .#packages.x86_64-linux.payjoin-mailroom-image.copyToDockerDaemon
           result/bin/copy-to-docker-daemon
-            
+
           docker save docker.io/payjoin/payjoin-mailroom:${TAG} -o payjoin-mailroom-${TAG}.tar
 
           echo "Image saved: payjoin-mailroom-${TAG}.tar"
