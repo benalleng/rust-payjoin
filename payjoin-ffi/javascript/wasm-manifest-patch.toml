@@ -9,9 +9,17 @@
 # the library and CLI versions causes "unreachable" panics at runtime.
 wasm-bindgen = "=0.2.108"
 
+# uniffi_core 0.30 requires this feature for wasm32 builds to remove the
+# Send bound on futures, which is not applicable in single-threaded WASM.
+[dependencies.uniffi_core]
+version = "0.30"
+default-features = false
+features = ["wasm-unstable-single-threaded"]
+
 [patch.crates-io]
 payjoin = { path = "../../../../payjoin" }
 payjoin-directory = { path = "../../../../payjoin-directory" }
 payjoin-test-utils = { path = "../../../../payjoin-test-utils" }
-# This patch is required due to the hardcoded 0.29 dependency in uniffi-bindgen-react-native's Cargo.toml. Once they publish the 0.30 package we shouldn't need this anymore.
+# uniffi-runtime-javascript is not yet published with uniffi_core 0.30 support.
+# This path patch lets cargo resolve it from the installed npm package.
 uniffi-runtime-javascript = { path = "../../node_modules/uniffi-bindgen-react-native/crates/uniffi-runtime-javascript" }
