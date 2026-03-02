@@ -2757,6 +2757,7 @@ dependencies = [
  "clap 4.5.46",
  "config",
  "dirs",
+ "form_urlencoded",
  "http-body-util",
  "hyper",
  "hyper-util",
@@ -2774,7 +2775,6 @@ dependencies = [
  "tokio-rustls 0.26.2",
  "tracing",
  "tracing-subscriber",
- "url",
 ]
 
 [[package]]
