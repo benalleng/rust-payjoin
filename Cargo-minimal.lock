@@ -2734,6 +2734,7 @@ dependencies = [
  "bitcoin-hpke",
  "bitcoin-ohttp",
  "bitcoin_uri",
+ "form_urlencoded",
  "http",
  "once_cell",
  "payjoin-test-utils",
