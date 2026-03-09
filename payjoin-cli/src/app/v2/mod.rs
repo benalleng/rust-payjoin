@@ -1,5 +1,5 @@
 use std::fmt;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 use anyhow::{anyhow, Context, Result};
 use payjoin::bitcoin::consensus::encode::serialize_hex;
@@ -22,7 +22,7 @@ use tokio::sync::watch;
 use super::config::Config;
 use super::wallet::BitcoindWallet;
 use super::App as AppTrait;
-use crate::app::v2::ohttp::{unwrap_ohttp_keys_or_else_fetch, RelayManager};
+use crate::app::v2::ohttp::unwrap_ohttp_keys_or_else_fetch;
 use crate::app::{handle_interrupt, http_agent};
 use crate::db::v2::{ReceiverPersister, SenderPersister, SessionId};
 use crate::db::Database;
@@ -40,7 +40,6 @@ pub(crate) struct App {
     db: Arc<Database>,
     wallet: BitcoindWallet,
     interrupt: watch::Receiver<()>,
-    relay_manager: Arc<Mutex<RelayManager>>,
 }
 
 trait StatusText {
@@ -140,11 +139,10 @@ impl<Status: StatusText> fmt::Display for SessionHistoryRow<Status> {
 impl AppTrait for App {
     async fn new(config: Config) -> Result<Self> {
         let db = Arc::new(Database::create(&config.db_path)?);
-        let relay_manager = Arc::new(Mutex::new(RelayManager::new()));
         let (interrupt_tx, interrupt_rx) = watch::channel(());
         tokio::spawn(handle_interrupt(interrupt_tx));
         let wallet = BitcoindWallet::new(&config.bitcoind).await?;
-        let app = Self { config, db, wallet, interrupt: interrupt_rx, relay_manager };
+        let app = Self { config, db, wallet, interrupt: interrupt_rx };
         app.wallet()
             .network()
             .context("Failed to connect to bitcoind. Check config RPC connection.")?;
@@ -153,7 +151,6 @@ impl AppTrait for App {
 
     fn wallet(&self) -> BitcoindWallet { self.wallet.clone() }
 
-    #[allow(clippy::incompatible_msrv)]
     async fn send_payjoin(&self, bip21: &str, fee_rate: FeeRate) -> Result<()> {
         use payjoin::UriExt;
         let uri = Uri::try_from(bip21)
@@ -254,29 +251,31 @@ impl AppTrait for App {
 
     async fn receive_payjoin(&self, amount: Amount) -> Result<()> {
         let address = self.wallet().get_new_address()?;
-        let ohttp_keys =
-            unwrap_ohttp_keys_or_else_fetch(&self.config, None, self.relay_manager.clone())
-                .await?
-                .ohttp_keys;
+        let directory = self.config.v2()?.pj_directory.clone();
+        let ohttp_keys = unwrap_ohttp_keys_or_else_fetch(&self.config, Some(directory.clone()))
+            .await?
+            .ohttp_keys;
         let persister = ReceiverPersister::new(self.db.clone())?;
-        let session =
-            ReceiverBuilder::new(address, self.config.v2()?.pj_directory.as_str(), ohttp_keys)?
-                .with_amount(amount)
-                .with_max_fee_rate(self.config.max_fee_rate.unwrap_or(FeeRate::BROADCAST_MIN))
-                .build()
-                .save(&persister)?;
+        let session = ReceiverBuilder::new(address, directory.as_str(), ohttp_keys)?
+            .with_amount(amount)
+            .with_max_fee_rate(self.config.max_fee_rate.unwrap_or(FeeRate::BROADCAST_MIN))
+            .build()
+            .save(&persister)?;
 
         println!("Receive session established");
         let pj_uri = session.pj_uri();
         println!("Request Payjoin by sharing this Payjoin Uri:");
         println!("{pj_uri}");
 
-        self.process_receiver_session(ReceiveSession::Initialized(session.clone()), &persister)
-            .await?;
+        self.process_receiver_session(
+            ReceiveSession::Initialized(session.clone()),
+            &persister,
+            directory,
+        )
+        .await?;
         Ok(())
     }
 
-    #[allow(clippy::incompatible_msrv)]
     async fn resume_payjoins(&self) -> Result<()> {
         let recv_session_ids = self.db.get_recv_session_ids()?;
         let send_session_ids = self.db.get_send_session_ids()?;
@@ -293,9 +292,28 @@ impl AppTrait for App {
             let self_clone = self.clone();
             let recv_persister = ReceiverPersister::from_id(self.db.clone(), session_id.clone());
             match replay_receiver_event_log(&recv_persister) {
-                Ok((receiver_state, _)) => {
+                Ok((receiver_state, session_history)) => {
+                    let directory =
+                        match url::Url::parse(&session_history.pj_uri().extras.endpoint()) {
+                            Ok(url) => url,
+                            Err(e) => {
+                                tracing::error!(
+                                    "Failed to parse directory URL for session {}: {:?}",
+                                    session_id,
+                                    e
+                                );
+                                Self::close_failed_session(
+                                    &recv_persister,
+                                    &session_id,
+                                    "receiver",
+                                );
+                                continue;
+                            }
+                        };
                     tasks.push(tokio::spawn(async move {
-                        self_clone.process_receiver_session(receiver_state, &recv_persister).await
+                        self_clone
+                            .process_receiver_session(receiver_state, &recv_persister, directory)
+                            .await
                     }));
                 }
                 Err(e) => {
@@ -513,10 +531,10 @@ impl App {
         sender: Sender<PollingForProposal>,
         persister: &SenderPersister,
     ) -> Result<()> {
-        let ohttp_relay = self.unwrap_relay_or_else_fetch(Some(&sender.endpoint())).await?;
         let mut session = sender.clone();
         // Long poll until we get a response
         loop {
+            let ohttp_relay = self.unwrap_relay_or_else_fetch(Some(&session.endpoint())).await?;
             let (req, ctx) = session.create_poll_request(ohttp_relay.as_str())?;
             let response = self.post_request(req).await?;
             let res = session.process_response(&response.bytes().await?, ctx).save(persister);
@@ -544,14 +562,13 @@ impl App {
         &self,
         session: Receiver<Initialized>,
         persister: &ReceiverPersister,
+        directory: &url::Url,
     ) -> Result<Receiver<UncheckedOriginalPayload>> {
-        let ohttp_relay =
-            self.unwrap_relay_or_else_fetch(Some(&session.pj_uri().extras.endpoint())).await?;
-
         let mut session = session;
         loop {
+            let ohttp_relay = self.unwrap_relay_or_else_fetch(Some(directory.as_str())).await?;
             let (req, context) = session.create_poll_request(ohttp_relay.as_str())?;
-            println!("Polling receive request...");
+            println!("Polling receive request via {}", ohttp_relay.as_str());
             let ohttp_response = self.post_request(req).await?;
             let state_transition = session
                 .process_response(ohttp_response.bytes().await?.to_vec().as_slice(), context)
@@ -570,65 +587,65 @@ impl App {
         }
     }
 
+    #[allow(clippy::incompatible_msrv)]
     async fn process_receiver_session(
         &self,
         session: ReceiveSession,
         persister: &ReceiverPersister,
+        directory: url::Url,
     ) -> Result<()> {
-        let res = {
-            match session {
-                ReceiveSession::Initialized(proposal) =>
-                    self.read_from_directory(proposal, persister).await,
+        let mut state = session;
+        loop {
+            state = match state {
+                ReceiveSession::Initialized(s) => {
+                    let mut interrupt = self.interrupt.clone();
+                    let next = tokio::select! {
+                        res = self.long_poll_fallback(s, persister, &directory) => res?,
+                        _ = interrupt.changed() => {
+                            println!("Interrupted. Call the `resume` command to resume all sessions.");
+                            return Err(anyhow!("Interrupted"));
+                        }
+                    };
+                    ReceiveSession::UncheckedOriginalPayload(next)
+                }
                 ReceiveSession::UncheckedOriginalPayload(proposal) =>
-                    self.check_proposal(proposal, persister).await,
+                    self.check_proposal(proposal, persister)?,
                 ReceiveSession::MaybeInputsOwned(proposal) =>
-                    self.check_inputs_not_owned(proposal, persister).await,
+                    self.check_inputs_not_owned(proposal, persister)?,
                 ReceiveSession::MaybeInputsSeen(proposal) =>
-                    self.check_no_inputs_seen_before(proposal, persister).await,
+                    self.check_no_inputs_seen_before(proposal, persister)?,
                 ReceiveSession::OutputsUnknown(proposal) =>
-                    self.identify_receiver_outputs(proposal, persister).await,
+                    self.identify_receiver_outputs(proposal, persister)?,
                 ReceiveSession::WantsOutputs(proposal) =>
-                    self.commit_outputs(proposal, persister).await,
+                    self.commit_outputs(proposal, persister)?,
                 ReceiveSession::WantsInputs(proposal) =>
-                    self.contribute_inputs(proposal, persister).await,
+                    self.contribute_inputs(proposal, persister)?,
                 ReceiveSession::WantsFeeRange(proposal) =>
-                    self.apply_fee_range(proposal, persister).await,
+                    self.apply_fee_range(proposal, persister)?,
                 ReceiveSession::ProvisionalProposal(proposal) =>
-                    self.finalize_proposal(proposal, persister).await,
-                ReceiveSession::PayjoinProposal(proposal) =>
-                    self.send_payjoin_proposal(proposal, persister).await,
-                ReceiveSession::HasReplyableError(error) =>
-                    self.handle_error(error, persister).await,
-                ReceiveSession::Monitor(proposal) =>
-                    self.monitor_payjoin_proposal(proposal, persister).await,
+                    self.finalize_proposal(proposal, persister)?,
+                ReceiveSession::PayjoinProposal(proposal) => {
+                    self.send_payjoin_proposal(proposal, persister, &directory).await?;
+                    return Ok(());
+                }
+                ReceiveSession::HasReplyableError(error) => {
+                    self.handle_error(error, persister, &directory).await?;
+                    return Ok(());
+                }
+                ReceiveSession::Monitor(proposal) => {
+                    self.monitor_payjoin_proposal(proposal, persister).await?;
+                    return Ok(());
+                }
                 ReceiveSession::Closed(_) => return Err(anyhow!("Session closed")),
-            }
-        };
-        res
+            };
+        }
     }
 
-    #[allow(clippy::incompatible_msrv)]
-    async fn read_from_directory(
-        &self,
-        session: Receiver<Initialized>,
-        persister: &ReceiverPersister,
-    ) -> Result<()> {
-        let mut interrupt = self.interrupt.clone();
-        let receiver = tokio::select! {
-            res = self.long_poll_fallback(session, persister) => res,
-            _ = interrupt.changed() => {
-                println!("Interrupted. Call the `resume` command to resume all sessions.");
-                return Err(anyhow!("Interrupted"));
-            }
-        }?;
-        self.check_proposal(receiver, persister).await
-    }
-
-    async fn check_proposal(
+    fn check_proposal(
         &self,
         proposal: Receiver<UncheckedOriginalPayload>,
         persister: &ReceiverPersister,
-    ) -> Result<()> {
+    ) -> Result<ReceiveSession> {
         let wallet = self.wallet();
         let proposal = proposal
             .check_broadcast_suitability(None, |tx| {
@@ -637,17 +654,16 @@ impl App {
                     .map_err(|e| ImplementationError::from(e.into_boxed_dyn_error()))
             })
             .save(persister)?;
-
         println!("Fallback transaction received. Consider broadcasting this to get paid if the Payjoin fails:");
         println!("{}", serialize_hex(&proposal.extract_tx_to_schedule_broadcast()));
-        self.check_inputs_not_owned(proposal, persister).await
+        Ok(ReceiveSession::MaybeInputsOwned(proposal))
     }
 
-    async fn check_inputs_not_owned(
+    fn check_inputs_not_owned(
         &self,
         proposal: Receiver<MaybeInputsOwned>,
         persister: &ReceiverPersister,
-    ) -> Result<()> {
+    ) -> Result<ReceiveSession> {
         let wallet = self.wallet();
         let proposal = proposal
             .check_inputs_not_owned(&mut |input| {
@@ -656,27 +672,27 @@ impl App {
                     .map_err(|e| ImplementationError::from(e.into_boxed_dyn_error()))
             })
             .save(persister)?;
-        self.check_no_inputs_seen_before(proposal, persister).await
+        Ok(ReceiveSession::MaybeInputsSeen(proposal))
     }
 
-    async fn check_no_inputs_seen_before(
+    fn check_no_inputs_seen_before(
         &self,
         proposal: Receiver<MaybeInputsSeen>,
         persister: &ReceiverPersister,
-    ) -> Result<()> {
+    ) -> Result<ReceiveSession> {
         let proposal = proposal
             .check_no_inputs_seen_before(&mut |input| {
                 Ok(self.db.insert_input_seen_before(*input)?)
             })
             .save(persister)?;
-        self.identify_receiver_outputs(proposal, persister).await
+        Ok(ReceiveSession::OutputsUnknown(proposal))
     }
 
-    async fn identify_receiver_outputs(
+    fn identify_receiver_outputs(
         &self,
         proposal: Receiver<OutputsUnknown>,
         persister: &ReceiverPersister,
-    ) -> Result<()> {
+    ) -> Result<ReceiveSession> {
         let wallet = self.wallet();
         let proposal = proposal
             .identify_receiver_outputs(&mut |output_script| {
@@ -685,52 +701,50 @@ impl App {
                     .map_err(|e| ImplementationError::from(e.into_boxed_dyn_error()))
             })
             .save(persister)?;
-        self.commit_outputs(proposal, persister).await
+        Ok(ReceiveSession::WantsOutputs(proposal))
     }
 
-    async fn commit_outputs(
+    fn commit_outputs(
         &self,
         proposal: Receiver<WantsOutputs>,
         persister: &ReceiverPersister,
-    ) -> Result<()> {
+    ) -> Result<ReceiveSession> {
         let proposal = proposal.commit_outputs().save(persister)?;
-        self.contribute_inputs(proposal, persister).await
+        Ok(ReceiveSession::WantsInputs(proposal))
     }
 
-    async fn contribute_inputs(
+    fn contribute_inputs(
         &self,
         proposal: Receiver<WantsInputs>,
         persister: &ReceiverPersister,
-    ) -> Result<()> {
+    ) -> Result<ReceiveSession> {
         let wallet = self.wallet();
         let candidate_inputs = wallet.list_unspent()?;
-
         if candidate_inputs.is_empty() {
             return Err(anyhow::anyhow!(
                 "No spendable UTXOs available in wallet. Cannot contribute inputs to payjoin."
             ));
         }
-
         let selected_input = proposal.try_preserving_privacy(candidate_inputs)?;
         let proposal =
             proposal.contribute_inputs(vec![selected_input])?.commit_inputs().save(persister)?;
-        self.apply_fee_range(proposal, persister).await
+        Ok(ReceiveSession::WantsFeeRange(proposal))
     }
 
-    async fn apply_fee_range(
+    fn apply_fee_range(
         &self,
         proposal: Receiver<WantsFeeRange>,
         persister: &ReceiverPersister,
-    ) -> Result<()> {
+    ) -> Result<ReceiveSession> {
         let proposal = proposal.apply_fee_range(None, self.config.max_fee_rate).save(persister)?;
-        self.finalize_proposal(proposal, persister).await
+        Ok(ReceiveSession::ProvisionalProposal(proposal))
     }
 
-    async fn finalize_proposal(
+    fn finalize_proposal(
         &self,
         proposal: Receiver<ProvisionalProposal>,
         persister: &ReceiverPersister,
-    ) -> Result<()> {
+    ) -> Result<ReceiveSession> {
         let wallet = self.wallet();
         let proposal = proposal
             .finalize_proposal(|psbt| {
@@ -739,16 +753,19 @@ impl App {
                     .map_err(|e| ImplementationError::from(e.into_boxed_dyn_error()))
             })
             .save(persister)?;
-        self.send_payjoin_proposal(proposal, persister).await
+        Ok(ReceiveSession::PayjoinProposal(proposal))
     }
 
     async fn send_payjoin_proposal(
         &self,
         proposal: Receiver<PayjoinProposal>,
         persister: &ReceiverPersister,
+        directory: &url::Url,
     ) -> Result<()> {
         let (req, ohttp_ctx) = proposal
-            .create_post_request(self.unwrap_relay_or_else_fetch(None::<&str>).await?.as_str())
+            .create_post_request(
+                self.unwrap_relay_or_else_fetch(Some(directory.as_str())).await?.as_str(),
+            )
             .map_err(|e| anyhow!("v2 req extraction failed {}", e))?;
         let res = self.post_request(req).await?;
         let payjoin_psbt = proposal.psbt().clone();
@@ -815,16 +832,7 @@ impl App {
         directory: Option<impl payjoin::IntoUrl>,
     ) -> Result<url::Url> {
         let directory = directory.map(|url| url.into_url()).transpose()?;
-        let selected_relay =
-            self.relay_manager.lock().expect("Lock should not be poisoned").get_selected_relay();
-        let ohttp_relay = match selected_relay {
-            Some(relay) => relay,
-            None =>
-                unwrap_ohttp_keys_or_else_fetch(&self.config, directory, self.relay_manager.clone())
-                    .await?
-                    .relay_url,
-        };
-        Ok(ohttp_relay)
+        Ok(unwrap_ohttp_keys_or_else_fetch(&self.config, directory).await?.relay_url)
     }
 
     /// Handle error by attempting to send an error response over the directory
@@ -832,9 +840,11 @@ impl App {
         &self,
         session: Receiver<HasReplyableError>,
         persister: &ReceiverPersister,
+        directory: &url::Url,
     ) -> Result<()> {
-        let (err_req, err_ctx) = session
-            .create_error_request(self.unwrap_relay_or_else_fetch(None::<&str>).await?.as_str())?;
+        let (err_req, err_ctx) = session.create_error_request(
+            self.unwrap_relay_or_else_fetch(Some(directory.as_str())).await?.as_str(),
+        )?;
 
         let err_response = match self.post_request(err_req).await {
             Ok(response) => response,
