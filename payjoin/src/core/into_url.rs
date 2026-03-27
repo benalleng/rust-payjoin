@@ -99,18 +99,6 @@ mod tests {
     }
 
     #[test]
-    fn into_url_file_scheme() {
-        let err = "file:///etc/hosts".into_url().unwrap_err();
-        assert_eq!(err.to_string(), "URL scheme is not allowed");
-    }
-
-    #[test]
-    fn into_url_blob_scheme() {
-        let err = "blob:https://example.com".into_url().unwrap_err();
-        assert_eq!(err.to_string(), "URL scheme is not allowed");
-    }
-
-    #[test]
     fn into_url_conversions() {
         let input = "http://localhost/";
         let url = Url::parse(input).unwrap();

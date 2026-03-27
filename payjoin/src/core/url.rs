@@ -5,7 +5,6 @@ use core::str::FromStr;
 pub struct Url {
     raw: String,
     scheme: String,
-    cannot_be_a_base: bool,
     username: String,
     password: Option<String>,
     host: Option<Host>,
@@ -114,39 +113,19 @@ impl FromStr for Url {
 
 impl Url {
     pub fn parse(input: &str) -> Result<Url, ParseError> {
-        let cannot_be_a_base = false;
         let (rest, scheme) = parse_scheme(input)?;
         let (_rest, host, port, path, query, fragment) =
             if let Some(rest) = rest.strip_prefix("://") {
                 let (rest, host) = parse_host(rest)?;
                 let (rest, port) = parse_port(rest).unwrap_or((rest, None));
                 let (path, query, fragment) = parse_path_query_fragment(rest);
-
-                let is_empty_host = matches!(&host, Host::Domain(s) if s.is_empty());
-                if is_empty_host && matches!(scheme.as_str(), "file" | "blob") {
-                    let after_colon = &input[scheme.len() + 1..];
-                    let (path, query, fragment) = parse_path_query_fragment(after_colon);
-                    (rest, None, None, path, query, fragment)
-                } else {
-                    (rest, Some(host), port, path, query, fragment)
-                }
-            } else if let Some(rest) = rest.strip_prefix(":") {
-                let (path, query, fragment) = parse_path_query_fragment(rest);
-                (rest, None, None, path, query, fragment)
+                (rest, Some(host), port, path, query, fragment)
             } else {
                 return Err(ParseError::InvalidFormat);
             };
 
         let host = match host {
-            Some(ref h) if h.is_empty() =>
-                if matches!(scheme.as_str(), "file" | "blob") {
-                    None
-                } else {
-                    return Err(ParseError::EmptyHost);
-                },
-            None if !matches!(scheme.as_str(), "file" | "blob") => {
-                return Err(ParseError::EmptyHost);
-            }
+            Some(ref h) if h.is_empty() => return Err(ParseError::EmptyHost),
             _ => host,
         };
 
@@ -157,7 +136,6 @@ impl Url {
         let mut url = Url {
             raw: String::new(),
             scheme,
-            cannot_be_a_base,
             username,
             password,
             host,
