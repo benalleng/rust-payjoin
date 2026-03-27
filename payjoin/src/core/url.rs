@@ -399,13 +399,7 @@ fn parse_path_query_fragment(input: &str) -> (String, Option<String>, Option<Str
 
         if let Some(q_pos) = before_fragment.find('?') {
             path.push_str(&before_fragment[..q_pos]);
-            let q_part = &before_fragment[q_pos + 1..];
-            if let Some(f_pos) = q_part.find('#') {
-                query = Some(q_part[..f_pos].to_string());
-                fragment = Some(q_part[f_pos + 1..].to_string());
-            } else {
-                query = Some(q_part.to_string());
-            }
+            query = Some(before_fragment[q_pos + 1..].to_string());
         } else {
             path.push_str(before_fragment);
         }
@@ -505,5 +499,107 @@ mod tests {
         assert_eq!(url.path(), "/PATH");
         assert_eq!(url.fragment(), Some("FRAGMENT"));
         assert_eq!(url.as_str(), "http://localhost:1234/PATH#FRAGMENT");
+    }
+
+    #[test]
+    fn test_empty_host_rejected() {
+        assert!(matches!(Url::parse("http:///path"), Err(ParseError::EmptyHost)));
+    }
+
+    #[test]
+    fn test_path_segments_mut_push_adds_separator() {
+        let mut url = Url::parse("http://example.com/base").unwrap();
+        {
+            let mut segs = url.path_segments_mut().unwrap();
+            segs.push("child");
+        }
+        assert_eq!(url.path(), "/base/child");
+        assert_eq!(url.as_str(), "http://example.com/base/child");
+    }
+
+    #[test]
+    fn test_host_str() {
+        let url = Url::parse("http://example.com/").unwrap();
+        assert_eq!(url.host_str(), Some("example.com".to_string()));
+    }
+
+    #[test]
+    fn test_host_str_ipv4() {
+        let mut url = Url::parse("http://127.0.0.1/").unwrap();
+        url.host = Some(Host::Ipv4([192, 168, 1, 1]));
+        url.rebuild_raw();
+        assert_eq!(url.host_str(), Some("192.168.1.1".to_string()));
+        assert!(url.as_str().contains("192.168.1.1"));
+    }
+
+    #[test]
+    fn test_set_port() {
+        let mut url = Url::parse("http://example.com/path").unwrap();
+        url.set_port(Some(9090));
+        assert_eq!(url.port(), Some(9090));
+        assert_eq!(url.as_str(), "http://example.com:9090/path");
+        url.set_port(None);
+        assert_eq!(url.port(), None);
+        assert_eq!(url.as_str(), "http://example.com/path");
+    }
+
+    #[test]
+    fn test_path_segments_root() {
+        let url = Url::parse("http://example.com/").unwrap();
+        let segs: Vec<_> = url.path_segments().unwrap().collect();
+        assert!(segs.is_empty());
+
+        let url = Url::parse("http://example.com").unwrap();
+        let segs: Vec<_> = url.path_segments().unwrap().collect();
+        assert!(segs.is_empty());
+    }
+
+    #[test]
+    fn test_set_query() {
+        let mut url = Url::parse("http://example.com/path").unwrap();
+        url.set_query(Some("key=value"));
+        assert_eq!(url.query(), Some("key=value"));
+        assert_eq!(url.as_str(), "http://example.com/path?key=value");
+        url.set_query(None);
+        assert_eq!(url.query(), None);
+        assert_eq!(url.as_str(), "http://example.com/path");
+    }
+
+    #[test]
+    fn test_join_dot_segments() {
+        let base = Url::parse("http://example.com/a/b/c").unwrap();
+
+        let joined = base.join("./d").unwrap();
+        assert_eq!(joined.path(), "/a/b/d");
+
+        let joined = base.join("../d").unwrap();
+        assert_eq!(joined.path(), "/a/d");
+    }
+
+    #[test]
+    fn test_rebuild_raw_with_userinfo() {
+        let mut url = Url::parse("http://example.com/").unwrap();
+        url.username = "user".to_string();
+        url.rebuild_raw();
+        assert!(url.as_str().contains("user@"));
+        assert_eq!(url.as_str(), "http://user@example.com/");
+    }
+
+    #[test]
+    fn test_parse_query_and_fragment() {
+        let url = Url::parse("http://example.com/path?q=1#frag").unwrap();
+        assert_eq!(url.path(), "/path");
+        assert_eq!(url.query(), Some("q=1"));
+        assert_eq!(url.fragment(), Some("frag"));
+    }
+
+    #[test]
+    fn test_has_host() {
+        let url = Url::parse("http://example.com/").unwrap();
+        assert!(url.has_host());
+
+        let mut url = Url::parse("http://example.com/").unwrap();
+        url.host = None;
+        assert!(!url.has_host());
     }
 }
