@@ -1,4 +1,6 @@
 using Payjoin.Http;
+using Payjoin.TestUtils;
+using PayjoinTestUtils;
 using System.Security.Authentication;
 using System.Text.Json;
 using Xunit;
@@ -443,7 +445,7 @@ namespace Payjoin.Tests
             using var receiver = receiveTransition.Save(recvPersister);
             using var pjUri = receiver.PjUri();
 
-            var psbt = PayjoinMethods.OriginalPsbt();
+            var psbt = Methods.OriginalPsbt();
 
             var feeRateOutOfRange = Assert.Throws<SenderInputException.FfiValidation>(() =>
             {
@@ -462,7 +464,7 @@ namespace Payjoin.Tests
         {
             var cancellationToken = TestContext.Current.CancellationToken;
 
-            using var env = PayjoinMethods.InitBitcoindSenderReceiver();
+            using var env = Methods.InitBitcoindSenderReceiver();
             using var bitcoind = env.GetBitcoind();
             using var receiver = env.GetReceiver();
             using var sender = env.GetSender();

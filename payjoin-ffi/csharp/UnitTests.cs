@@ -1,5 +1,7 @@
 using Xunit;
 using Payjoin;
+using Payjoin.TestUtils;
+using PayjoinTestUtils;
 
 namespace Payjoin.Tests;
 
@@ -145,7 +147,7 @@ public class PersistenceTests
         var address = "tb1q6d3a2w975yny0asuvd9a67ner4nks58ff0q8g4";
         var ohttpKeys = OhttpKeys.Decode(OhttpKeysData);
 
-        var builder = new ReceiverBuilder(address, "https://example.com", ohttpKeys);
+        var builder = new ReceiverBuilder(address, Methods.ExampleUrl(), ohttpKeys);
         var transition = builder.Build();
         var initialized = transition.Save(persister);
 
@@ -162,14 +164,14 @@ public class PersistenceTests
         var address = "2MuyMrZHkbHbfjudmKUy45dU4P17pjG2szK";
         var ohttpKeys = OhttpKeys.Decode(OhttpKeysData);
 
-        var receiver = new ReceiverBuilder(address, "https://example.com", ohttpKeys)
+        var receiver = new ReceiverBuilder(address, Methods.ExampleUrl(), ohttpKeys)
             .Build()
             .Save(receiverPersister);
         var uri = receiver.PjUri();
 
         var senderPersister = new InMemorySenderPersister();
-        var psbt = PayjoinMethods.OriginalPsbt();
-        
+        var psbt = Methods.OriginalPsbt();
+
         var withReplyKey = new SenderBuilder(psbt, uri)
             .BuildRecommended(1000)
             .Save(senderPersister);
@@ -187,7 +189,7 @@ public class PersistenceTests
         var address = "tb1q6d3a2w975yny0asuvd9a67ner4nks58ff0q8g4";
         var ohttpKeys = OhttpKeys.Decode(OhttpKeysData);
 
-        var builder = new ReceiverBuilder(address, "https://example.com", ohttpKeys);
+        var builder = new ReceiverBuilder(address, Methods.ExampleUrl(), ohttpKeys);
         var transition = builder.Build();
         var initialized = await transition.SaveAsync(persister);
 
@@ -204,13 +206,13 @@ public class PersistenceTests
         var address = "2MuyMrZHkbHbfjudmKUy45dU4P17pjG2szK";
         var ohttpKeys = OhttpKeys.Decode(OhttpKeysData);
 
-        var receiver = await new ReceiverBuilder(address, "https://example.com", ohttpKeys)
+        var receiver = await new ReceiverBuilder(address, Methods.ExampleUrl(), ohttpKeys)
             .Build()
             .SaveAsync(receiverPersister);
         var uri = receiver.PjUri();
 
         var senderPersister = new InMemorySenderPersisterAsync();
-        var psbt = PayjoinMethods.OriginalPsbt();
+        var psbt = Methods.OriginalPsbt();
 
         var withReplyKey = await new SenderBuilder(psbt, uri)
             .BuildRecommended(1000)
@@ -241,7 +243,7 @@ public class ValidationTests
     {
         var ohttpKeys = OhttpKeys.Decode(OhttpKeysData);
         var persister = new InMemoryReceiverPersister();
-        using var builder = new ReceiverBuilder("2MuyMrZHkbHbfjudmKUy45dU4P17pjG2szK", "https://example.com", ohttpKeys);
+        using var builder = new ReceiverBuilder("2MuyMrZHkbHbfjudmKUy45dU4P17pjG2szK", Methods.ExampleUrl(), ohttpKeys);
         using var transition = builder.Build();
         using var receiver = transition.Save(persister);
         return receiver.PjUri();
@@ -254,7 +256,7 @@ public class ValidationTests
         
         Assert.Throws<ReceiverBuilderException.InvalidAddress>(() =>
         {
-            new ReceiverBuilder("not-an-address", "https://example.com", ohttpKeys);
+            new ReceiverBuilder("not-an-address", Methods.ExampleUrl(), ohttpKeys);
         });
     }
 
@@ -294,7 +296,7 @@ public class ValidationTests
         var ohttpKeys = OhttpKeys.Decode(OhttpKeysData);
         using var builder = new ReceiverBuilder(
             "tb1q6d3a2w975yny0asuvd9a67ner4nks58ff0q8g4",
-            "https://example.com",
+            Methods.ExampleUrl(),
             ohttpKeys);
 
         Assert.Throws<FfiValidationException.AmountOutOfRange>(() =>
@@ -309,7 +311,7 @@ public class ValidationTests
         var ohttpKeys = OhttpKeys.Decode(OhttpKeysData);
         using var builder = new ReceiverBuilder(
             "tb1q6d3a2w975yny0asuvd9a67ner4nks58ff0q8g4",
-            "https://example.com",
+            Methods.ExampleUrl(),
             ohttpKeys);
 
         Assert.Throws<FfiValidationException.ExpirationOutOfRange>(() =>
@@ -322,7 +324,7 @@ public class ValidationTests
     public void SenderBuilderWithAdditionalFeeRejectsFeeContributionOverflow()
     {
         using var uri = CreateV2PjUri();
-        var psbt = PayjoinMethods.OriginalPsbt();
+        var psbt = Methods.OriginalPsbt();
         using var builder = new SenderBuilder(psbt, uri);
 
         var ex = Assert.Throws<SenderInputException.FfiValidation>(() =>
@@ -337,7 +339,7 @@ public class ValidationTests
     public void SenderBuilderWithAdditionalFeeRejectsFeeRateOverflow()
     {
         using var uri = CreateV2PjUri();
-        var psbt = PayjoinMethods.OriginalPsbt();
+        var psbt = Methods.OriginalPsbt();
         using var builder = new SenderBuilder(psbt, uri);
 
         var ex = Assert.Throws<SenderInputException.FfiValidation>(() =>
@@ -352,7 +354,7 @@ public class ValidationTests
     public void SenderBuilderNonIncentivizingRejectsFeeRateOverflow()
     {
         using var uri = CreateV2PjUri();
-        var psbt = PayjoinMethods.OriginalPsbt();
+        var psbt = Methods.OriginalPsbt();
         using var builder = new SenderBuilder(psbt, uri);
 
         var ex = Assert.Throws<SenderInputException.FfiValidation>(() =>

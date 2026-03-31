@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:convert/convert.dart';
 import 'package:test/test.dart';
 import "package:payjoin/payjoin.dart" as payjoin;
+import "package:payjoin/test_utils.dart" as test_utils;
 
 class InMemoryReceiverPersister
     implements payjoin.JsonReceiverSessionPersister {
@@ -126,7 +127,7 @@ void main() {
     });
 
     test('Test valid uris', () {
-      final https = payjoin.exampleUrl();
+      final https = test_utils.exampleUrl();
       final onion =
           "http://vjdpwgybvubne5hda6v4c5iaeeevhge6jvo3w2cl6eocbwwvwxp7b7qd.onion";
 
@@ -155,7 +156,7 @@ void main() {
       var persister = InMemoryReceiverPersister("1");
       payjoin.ReceiverBuilder(
         address: "tb1q6d3a2w975yny0asuvd9a67ner4nks58ff0q8g4",
-        directory: "https://example.com",
+        directory: test_utils.exampleUrl(),
         ohttpKeys: payjoin.OhttpKeys.decode(
           bytes: Uint8List.fromList(
             hex.decode(
@@ -176,7 +177,7 @@ void main() {
       var receiver_persister = InMemoryReceiverPersister("1");
       var receiver = payjoin.ReceiverBuilder(
         address: "2MuyMrZHkbHbfjudmKUy45dU4P17pjG2szK",
-        directory: "https://example.com",
+        directory: test_utils.exampleUrl(),
         ohttpKeys: payjoin.OhttpKeys.decode(
           bytes: Uint8List.fromList(
             hex.decode(
@@ -188,7 +189,7 @@ void main() {
       var uri = receiver.pjUri();
 
       var sender_persister = InMemorySenderPersister("1");
-      var psbt = payjoin.originalPsbt();
+      var psbt = test_utils.originalPsbt();
       payjoin.SenderBuilder(
         psbt: psbt,
         uri: uri,
@@ -209,7 +210,7 @@ void main() {
       var persister = InMemoryReceiverPersisterAsync("1");
       await payjoin.ReceiverBuilder(
         address: "tb1q6d3a2w975yny0asuvd9a67ner4nks58ff0q8g4",
-        directory: "https://example.com",
+        directory: test_utils.exampleUrl(),
         ohttpKeys: payjoin.OhttpKeys.decode(
           bytes: Uint8List.fromList(
             hex.decode(
@@ -232,7 +233,7 @@ void main() {
       var receiver_persister = InMemoryReceiverPersisterAsync("1");
       var receiver = await payjoin.ReceiverBuilder(
         address: "2MuyMrZHkbHbfjudmKUy45dU4P17pjG2szK",
-        directory: "https://example.com",
+        directory: test_utils.exampleUrl(),
         ohttpKeys: payjoin.OhttpKeys.decode(
           bytes: Uint8List.fromList(
             hex.decode(
@@ -244,7 +245,7 @@ void main() {
       var uri = receiver.pjUri();
 
       var sender_persister = InMemorySenderPersisterAsync("1");
-      var psbt = payjoin.originalPsbt();
+      var psbt = test_utils.originalPsbt();
       await payjoin.SenderBuilder(psbt: psbt, uri: uri)
           .buildRecommended(minFeeRate: 1000)
           .saveAsync(persister: sender_persister);

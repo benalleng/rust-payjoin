@@ -9,8 +9,6 @@ license = "MIT OR Apache-2.0"
 publish = false
 
 [features]
-_test-utils = ["payjoin-ffi/_test-utils"]
-
 [lib]
 name = "payjoin_ffi_wrapper"
 crate-type = ["staticlib", "cdylib"]

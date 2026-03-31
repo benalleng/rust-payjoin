@@ -1,10 +1,17 @@
 library test_utils;
 
-export "payjoin.dart"
+export "payjoin_test_utils.dart"
     show
         BitcoindEnv,
         BitcoindInstance,
         RpcClient,
         TestServices,
         initBitcoindSenderReceiver,
-        originalPsbt;
+        originalPsbt,
+        exampleUrl,
+        queryParams,
+        invalidPsbt,
+        payjoinProposal,
+        payjoinProposalWithSenderInfo,
+        receiverInputContribution,
+        initTracing;

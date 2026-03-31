@@ -126,7 +126,7 @@ describe("URI tests", () => {
     });
 
     test("valid URIs with different addresses and endpoints", () => {
-        const https = "https://example.com";
+        const https = testUtils.exampleUrl();
         const onion =
             "http://vjdpwgybvubne5hda6v4c5iaeeevhge6jvo3w2cl6eocbwwvwxp7b7qd.onion";
 
@@ -170,7 +170,7 @@ describe("Persistence tests", () => {
 
         const builder = new payjoin.ReceiverBuilder(
             address,
-            "https://example.com",
+            testUtils.exampleUrl,
             ohttpKeys,
         );
         builder.build().save(persister);
@@ -203,7 +203,7 @@ describe("Persistence tests", () => {
 
         const receiver = new payjoin.ReceiverBuilder(
             address,
-            "https://example.com",
+            testUtils.exampleUrl,
             ohttpKeys,
         )
             .build()
@@ -239,7 +239,7 @@ describe("Async Persistence tests", () => {
 
         const builder = new payjoin.ReceiverBuilder(
             address,
-            "https://example.com",
+            testUtils.exampleUrl,
             ohttpKeys,
         );
         await builder.build().saveAsync(persister);
@@ -272,7 +272,7 @@ describe("Async Persistence tests", () => {
 
         const receiver = await new payjoin.ReceiverBuilder(
             address,
-            "https://example.com",
+            testUtils.exampleUrl,
             ohttpKeys,
         )
             .build()
@@ -294,7 +294,7 @@ describe("Validation", () => {
         assert.throws(() => {
             new payjoin.ReceiverBuilder(
                 "not-an-address",
-                "https://example.com",
+                testUtils.exampleUrl,
                 payjoin.OhttpKeys.decode(
                     new Uint8Array([
                         0x01, 0x00, 0x16, 0x04, 0xba, 0x48, 0xc4, 0x9c, 0x3d,

@@ -40,8 +40,7 @@ Write-Host "Generating payjoin C#..."
 if ($null -ne $env:PAYJOIN_FFI_FEATURES) {
     $payjoinFfiFeatures = $env:PAYJOIN_FFI_FEATURES
 } else {
-    # Keep parity with other language test scripts: include _test-utils by default.
-    $payjoinFfiFeatures = "_test-utils"
+    $payjoinFfiFeatures = ""
 }
 
 if ($payjoinFfiFeatures) {
@@ -72,5 +71,33 @@ finally {
 Write-Host "Copying native library..."
 New-Item -ItemType Directory -Force -Path "csharp/lib" | Out-Null
 Copy-Item "../target/debug/$libName" "csharp/lib/$libName" -Force
+
+# Generate test utils bindings from payjoin-ffi-test-utils crate
+if ($isWindowsPlatform) {
+    $testUtilsLibName = "payjoin_ffi_test_utils.dll"
+} elseif ($isMacPlatform) {
+    $testUtilsLibName = "libpayjoin_ffi_test_utils.dylib"
+} elseif ($isLinuxPlatform) {
+    $testUtilsLibName = "libpayjoin_ffi_test_utils.so"
+}
+
+Write-Host "Generating payjoin test utils C#..."
+Invoke-Native cargo build -p payjoin-ffi-test-utils --features csharp --profile dev -j2
+
+$previousUniffiLanguage2 = $env:UNIFFI_BINDGEN_LANGUAGE
+$env:UNIFFI_BINDGEN_LANGUAGE = "csharp"
+try {
+    Invoke-Native cargo run -p payjoin-ffi-test-utils --features csharp --profile dev --bin uniffi-bindgen-test-utils '--' --library "../target/debug/$testUtilsLibName" --out-dir "csharp/src/"
+}
+finally {
+    if ($null -eq $previousUniffiLanguage2) {
+        Remove-Item Env:UNIFFI_BINDGEN_LANGUAGE -ErrorAction SilentlyContinue
+    } else {
+        $env:UNIFFI_BINDGEN_LANGUAGE = $previousUniffiLanguage2
+    }
+}
+
+Write-Host "Copying test utils native library..."
+Copy-Item "../target/debug/$testUtilsLibName" "csharp/lib/$testUtilsLibName" -Force
 
 Write-Host "All done!"

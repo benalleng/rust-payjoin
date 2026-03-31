@@ -61,7 +61,7 @@ class InMemorySenderPersister implements payjoin.JsonSenderSessionPersister {
 }
 
 class MempoolAcceptanceCallback implements payjoin.CanBroadcast {
-  final payjoin.RpcClient connection;
+  final test_utils.RpcClient connection;
 
   MempoolAcceptanceCallback(this.connection);
 
@@ -87,7 +87,7 @@ class MempoolAcceptanceCallback implements payjoin.CanBroadcast {
 }
 
 class IsScriptOwnedCallback implements payjoin.IsScriptOwned {
-  final payjoin.RpcClient connection;
+  final test_utils.RpcClient connection;
 
   IsScriptOwnedCallback(this.connection);
 
@@ -143,7 +143,7 @@ class IsScriptOwnedCallback implements payjoin.IsScriptOwned {
 }
 
 class CheckInputsNotSeenCallback implements payjoin.IsOutputKnown {
-  final payjoin.RpcClient connection;
+  final test_utils.RpcClient connection;
 
   CheckInputsNotSeenCallback(this.connection);
 
@@ -154,7 +154,7 @@ class CheckInputsNotSeenCallback implements payjoin.IsOutputKnown {
 }
 
 class ProcessPsbtCallback implements payjoin.ProcessPsbt {
-  final payjoin.RpcClient connection;
+  final test_utils.RpcClient connection;
 
   ProcessPsbtCallback(this.connection);
 
@@ -181,7 +181,7 @@ payjoin.Initialized create_receiver_context(
   return receiver;
 }
 
-String build_sweep_psbt(payjoin.RpcClient sender, payjoin.PjUri pj_uri) {
+String build_sweep_psbt(test_utils.RpcClient sender, payjoin.PjUri pj_uri) {
   var outputs = <String, dynamic>{};
   outputs[pj_uri.address()] = 50;
   var psbt = jsonDecode(
@@ -207,7 +207,7 @@ String build_sweep_psbt(payjoin.RpcClient sender, payjoin.PjUri pj_uri) {
   )["psbt"];
 }
 
-List<payjoin.InputPair> get_inputs(payjoin.RpcClient rpc_connection) {
+List<payjoin.InputPair> get_inputs(test_utils.RpcClient rpc_connection) {
   var utxos = jsonDecode(
     rpc_connection.call(method: "listunspent", params: []),
   );

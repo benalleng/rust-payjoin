@@ -23,6 +23,9 @@
     <Copy SourceFiles="lib/libpayjoin_ffi.so" DestinationFolder="$(TargetDir)" Condition="Exists('lib/libpayjoin_ffi.so')" />
     <Copy SourceFiles="lib/libpayjoin_ffi.dylib" DestinationFolder="$(TargetDir)" Condition="Exists('lib/libpayjoin_ffi.dylib')" />
     <Copy SourceFiles="lib/payjoin_ffi.dll" DestinationFolder="$(TargetDir)" Condition="Exists('lib/payjoin_ffi.dll')" />
+    <Copy SourceFiles="lib/libpayjoin_ffi_test_utils.so" DestinationFolder="$(TargetDir)" Condition="Exists('lib/libpayjoin_ffi_test_utils.so')" />
+    <Copy SourceFiles="lib/libpayjoin_ffi_test_utils.dylib" DestinationFolder="$(TargetDir)" Condition="Exists('lib/libpayjoin_ffi_test_utils.dylib')" />
+    <Copy SourceFiles="lib/payjoin_ffi_test_utils.dll" DestinationFolder="$(TargetDir)" Condition="Exists('lib/payjoin_ffi_test_utils.dll')" />
   </Target>
 
 </Project>

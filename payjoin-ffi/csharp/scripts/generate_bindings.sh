@@ -22,8 +22,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR/../.."
 
 echo "Generating payjoin C#..."
-# Keep parity with other language test scripts: include _test-utils by default.
-PAYJOIN_FFI_FEATURES=${PAYJOIN_FFI_FEATURES:-_test-utils}
+PAYJOIN_FFI_FEATURES=${PAYJOIN_FFI_FEATURES:-}
 GENERATOR_FEATURES="csharp"
 if [[ -n $PAYJOIN_FFI_FEATURES ]]; then
     GENERATOR_FEATURES="$GENERATOR_FEATURES,$PAYJOIN_FFI_FEATURES"
@@ -45,5 +44,24 @@ UNIFFI_BINDGEN_LANGUAGE=csharp cargo run --features "$GENERATOR_FEATURES" --prof
 echo "Copying native library..."
 mkdir -p csharp/lib
 cp ../target/debug/$LIBNAME csharp/lib/$LIBNAME
+
+# Generate test utils bindings from payjoin-ffi-test-utils crate
+if [[ $OS == "Darwin" ]]; then
+    TEST_UTILS_LIBNAME=libpayjoin_ffi_test_utils.dylib
+elif [[ $OS == "Linux" ]]; then
+    TEST_UTILS_LIBNAME=libpayjoin_ffi_test_utils.so
+else
+    TEST_UTILS_LIBNAME=payjoin_ffi_test_utils.dll
+fi
+
+echo "Generating payjoin test utils C#..."
+cargo build -p payjoin-ffi-test-utils --features csharp --profile dev -j2
+
+UNIFFI_BINDGEN_LANGUAGE=csharp cargo run -p payjoin-ffi-test-utils --features csharp --profile dev --bin uniffi-bindgen-test-utils -- \
+    --library ../target/debug/$TEST_UTILS_LIBNAME \
+    --out-dir csharp/src/
+
+echo "Copying test utils native library..."
+cp ../target/debug/$TEST_UTILS_LIBNAME csharp/lib/$TEST_UTILS_LIBNAME
 
 echo "All done!"

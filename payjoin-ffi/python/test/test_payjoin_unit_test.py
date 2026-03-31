@@ -1,5 +1,6 @@
 import unittest
 import payjoin
+from payjoin import test_utils
 
 
 class TestURIs(unittest.TestCase):
@@ -16,7 +17,7 @@ class TestURIs(unittest.TestCase):
         self.assertTrue(payjoin.Url.parse(uri), "missing amount should be ok")
 
     def test_valid_uris(self):
-        https = str(payjoin.example_url())
+        https = str(test_utils.example_url())
         onion = "http://vjdpwgybvubne5hda6v4c5iaeeevhge6jvo3w2cl6eocbwwvwxp7b7qd.onion"
 
         base58 = "bitcoin:12c6DSiU4Rq3P4ZxziKxzrL5LmMBrzjrJX"
@@ -101,7 +102,7 @@ class TestReceiverPersistence(unittest.TestCase):
         persister = InMemoryReceiverPersister(1)
         payjoin.ReceiverBuilder(
             "tb1q6d3a2w975yny0asuvd9a67ner4nks58ff0q8g4",
-            "https://example.com",
+            test_utils.example_url(),
             payjoin.OhttpKeys.decode(
                 bytes.fromhex(
                     "01001604ba48c49c3d4a92a3ad00ecc63a024da10ced02180c73ec12d8a7ad2cc91bb483824fe2bee8d28bfe2eb2fc6453bc4d31cd851e8a6540e86c5382af588d370957000400010003"
@@ -119,7 +120,7 @@ class TestSenderPersistence(unittest.TestCase):
         receiver = (
             payjoin.ReceiverBuilder(
                 "2MuyMrZHkbHbfjudmKUy45dU4P17pjG2szK",
-                "https://example.com",
+                test_utils.example_url(),
                 payjoin.OhttpKeys.decode(
                     bytes.fromhex(
                         "01001604ba48c49c3d4a92a3ad00ecc63a024da10ced02180c73ec12d8a7ad2cc91bb483824fe2bee8d28bfe2eb2fc6453bc4d31cd851e8a6540e86c5382af588d370957000400010003"
@@ -132,7 +133,7 @@ class TestSenderPersistence(unittest.TestCase):
         uri = receiver.pj_uri()
 
         persister = InMemorySenderPersister(1)
-        psbt = payjoin.original_psbt()
+        psbt = test_utils.original_psbt()
         with_reply_key = (
             payjoin.SenderBuilder(psbt, uri).build_recommended(1000).save(persister)
         )
@@ -147,7 +148,7 @@ class TestReceiverAsyncPersistence(unittest.TestCase):
             await (
                 payjoin.ReceiverBuilder(
                     "tb1q6d3a2w975yny0asuvd9a67ner4nks58ff0q8g4",
-                    "https://example.com",
+                    test_utils.example_url(),
                     payjoin.OhttpKeys.decode(
                         bytes.fromhex(
                             "01001604ba48c49c3d4a92a3ad00ecc63a024da10ced02180c73ec12d8a7ad2cc91bb483824fe2bee8d28bfe2eb2fc6453bc4d31cd851e8a6540e86c5382af588d370957000400010003"
@@ -173,7 +174,7 @@ class TestSenderAsyncPersistence(unittest.TestCase):
             receiver = await (
                 payjoin.ReceiverBuilder(
                     "2MuyMrZHkbHbfjudmKUy45dU4P17pjG2szK",
-                    "https://example.com",
+                    test_utils.example_url(),
                     payjoin.OhttpKeys.decode(
                         bytes.fromhex(
                             "01001604ba48c49c3d4a92a3ad00ecc63a024da10ced02180c73ec12d8a7ad2cc91bb483824fe2bee8d28bfe2eb2fc6453bc4d31cd851e8a6540e86c5382af588d370957000400010003"
@@ -186,7 +187,7 @@ class TestSenderAsyncPersistence(unittest.TestCase):
             uri = receiver.pj_uri()
 
             persister = InMemorySenderPersisterAsync(1)
-            psbt = payjoin.original_psbt()
+            psbt = test_utils.original_psbt()
             with_reply_key = await (
                 payjoin.SenderBuilder(psbt, uri)
                 .build_recommended(1000)
@@ -201,7 +202,7 @@ class TestValidation(unittest.TestCase):
         with self.assertRaises(payjoin.ReceiverBuilderError):
             payjoin.ReceiverBuilder(
                 "not-an-address",
-                "https://example.com",
+                test_utils.example_url(),
                 payjoin.OhttpKeys.decode(
                     bytes.fromhex(
                         "01001604ba48c49c3d4a92a3ad00ecc63a024da10ced02180c73ec12d8a7ad2cc91bb483824fe2bee8d28bfe2eb2fc6453bc4d31cd851e8a6540e86c5382af588d370957000400010003"

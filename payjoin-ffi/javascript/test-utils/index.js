@@ -85,4 +85,5 @@ export const {
     TestServices,
     initBitcoindSenderReceiver,
     originalPsbt,
+    exampleUrl,
 } = nativeBinding;
