@@ -1,0 +1,17 @@
+[bindings.kotlin]
+package_name = "org.payjoindevkit"
+cdylib_name = "payjoin_ffi_test_utils"
+
+[bindings.python]
+cdylib_name = "payjoin_ffi_test_utils"
+
+[bindings.swift]
+cdylib_name = "payjoin_ffi_test_utils"
+
+[bindings.dart]
+cdylib_name = "payjoin_ffi_test_utils"
+package_name = "payjoin_test_utils"
+
+[bindings.csharp]
+namespace = "PayjoinTestUtils"
+cdylib_name = "payjoin_ffi_test_utils"

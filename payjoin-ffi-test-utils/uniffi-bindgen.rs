@@ -1,0 +1,38 @@
+fn main() { uniffi_bindgen() }
+
+fn uniffi_bindgen() {
+    let args: Vec<String> = std::env::args().collect();
+    let language = args
+        .iter()
+        .position(|arg| arg == "--language")
+        .and_then(|idx| args.get(idx + 1).cloned())
+        .or_else(|| std::env::var("UNIFFI_BINDGEN_LANGUAGE").ok());
+    match language.as_deref() {
+        #[cfg(feature = "dart")]
+        Some("dart") => {
+            let library_path = args
+                .iter()
+                .position(|arg| arg == "--library")
+                .and_then(|idx| args.get(idx + 1))
+                .expect("specify the library path with --library");
+            let output_dir = args
+                .iter()
+                .position(|arg| arg == "--out-dir")
+                .and_then(|idx| args.get(idx + 1))
+                .expect("--out-dir is required when using --library");
+            uniffi_dart::gen::generate_dart_bindings(
+                "src/payjoin_test_utils.udl".into(),
+                Some("uniffi.toml".into()),
+                Some(output_dir.as_str().into()),
+                library_path.as_str().into(),
+                true,
+            )
+            .expect("Failed to generate dart bindings");
+        }
+        #[cfg(feature = "csharp")]
+        Some("csharp") => {
+            uniffi_bindgen_cs::main().expect("Failed to generate csharp bindings");
+        }
+        _ => uniffi::uniffi_bindgen_main(),
+    }
+}

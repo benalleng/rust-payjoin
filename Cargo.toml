@@ -5,6 +5,7 @@ members = [
   "payjoin-cli",
   "payjoin-test-utils",
   "payjoin-ffi",
+  "payjoin-ffi-test-utils",
   "payjoin-mailroom",
 ]
 resolver = "2"

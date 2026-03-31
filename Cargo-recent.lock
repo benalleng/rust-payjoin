@@ -2787,15 +2787,28 @@ dependencies = [
  "getrandom 0.2.15",
  "lazy_static",
  "payjoin",
- "payjoin-test-utils",
  "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "uniffi",
+ "uniffi-bindgen-cs",
+ "uniffi-dart",
+ "url",
+]
+
+[[package]]
+name = "payjoin-ffi-test-utils"
+version = "0.24.0"
+dependencies = [
+ "lazy_static",
+ "payjoin-ffi",
+ "payjoin-test-utils",
  "serde_json",
  "thiserror 2.0.18",
  "tokio",
  "uniffi",
  "uniffi-bindgen-cs",
  "uniffi-dart",
- "url",
 ]
 
 [[package]]
