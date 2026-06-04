@@ -1,3 +1,4 @@
+import asyncio
 import os
 import sys
 import httpx
@@ -23,12 +24,11 @@ class HasInner(Protocol):
 
 
 class TestPayjoin(unittest.IsolatedAsyncioTestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.env = init_bitcoind_sender_receiver()
-        cls.bitcoind = cls.env.get_bitcoind()
-        cls.receiver = cls.env.get_receiver()
-        cls.sender = cls.env.get_sender()
+    def setUp(self):
+        self.env = init_bitcoind_sender_receiver()
+        self.bitcoind = self.env.get_bitcoind()
+        self.receiver = self.env.get_receiver()
+        self.sender = self.env.get_sender()
 
     async def test_ffi_validation(self):
         too_large_amount = 21_000_000 * 100_000_000 + 1
@@ -384,6 +384,132 @@ class TestPayjoin(unittest.IsolatedAsyncioTestCase):
         except Exception as e:
             print("Caught:", e)
             raise
+
+    async def test_integration_v1_to_v2(self):
+        try:
+            receiver_address = json.loads(self.receiver.call("getnewaddress", []))
+            init_tracing()
+            services = TestServices.initialize()
+            services.wait_for_services_ready()
+            directory = services.directory_url()
+            ohttp_relay = services.ohttp_relay_url()
+            ohttp_keys = await fetch_ohttp_keys(ohttp_relay, directory, services.cert())
+
+            # Self-signed dev cert on the directory; trust without verification.
+            agent = httpx.AsyncClient(verify=False)
+
+            # **********************
+            # Inside the Receiver: open a v2 session.
+            recv_persister = InMemoryReceiverPersister()
+            session = self.create_receiver_context(
+                receiver_address, directory, ohttp_keys, recv_persister
+            )
+            pj_uri = session.pj_uri()
+
+            # **********************
+            # Inside the V1 Sender:
+            psbt = build_original_psbt(self.sender, pj_uri)
+            v1_sender: V1Sender = V1SenderBuilder(
+                psbt, pj_uri
+            ).build_with_additional_fee(10000, None, 0, False)
+            req_ctx: RequestV1Context = v1_sender.create_v1_post_request()
+            req = req_ctx.request
+
+            # Offline receiver: directory replies 503 until first poll.
+            offline_resp = await agent.post(
+                url=req.url,
+                headers={"Content-Type": req.content_type},
+                content=req.body,
+            )
+            self.assertEqual(offline_resp.status_code, 503)
+
+            # **********************
+            # Spawn receiver poll/handle loop.
+            async def receiver_loop():
+                proposal = None
+                while proposal is None:
+                    outcome = await self.process_receiver_proposal(
+                        cast(ReceiveSession, ReceiveSession.INITIALIZED(session)),
+                        recv_persister,
+                        ohttp_relay,
+                    )
+                    if outcome is not None and isinstance(
+                        outcome, ReceiveSession.PAYJOIN_PROPOSAL
+                    ):
+                        proposal = outcome
+                        break
+                    await asyncio.sleep(0.5)
+                payjoin_proposal = proposal.inner
+                request_recv: RequestResponse = payjoin_proposal.create_post_request(
+                    ohttp_relay
+                )
+                response = await agent.post(
+                    url=request_recv.request.url,
+                    headers={"Content-Type": request_recv.request.content_type},
+                    content=request_recv.request.body,
+                )
+                payjoin_proposal.process_response(
+                    response.content, request_recv.client_response
+                )
+
+            recv_task = asyncio.create_task(receiver_loop())
+
+            # **********************
+            # V1 sender resends fallback now that the receiver is online.
+            online_resp = await agent.post(
+                url=req.url,
+                headers={"Content-Type": req.content_type},
+                content=req.body,
+            )
+            self.assertTrue(online_resp.is_success, online_resp.text)
+
+            checked_psbt_base64 = req_ctx.context.process_response(online_resp.content)
+
+            # Sign + finalize + broadcast on sender side.
+            signed = json.loads(
+                self.sender.call("walletprocesspsbt", [checked_psbt_base64])
+            )["psbt"]
+            final_tx_hex = json.loads(
+                self.sender.call("finalizepsbt", [signed, json.dumps(True)])
+            )["hex"]
+            self.sender.call("sendrawtransaction", [json.dumps(final_tx_hex)])
+
+            await asyncio.wait_for(recv_task, timeout=30)
+
+            decoded_tx = json.loads(
+                self.sender.call("decoderawtransaction", [json.dumps(final_tx_hex)])
+            )
+            # v1 sender + v2 receiver coinjoin: 2 inputs, 2 outputs.
+            self.assertEqual(len(decoded_tx["vin"]), 2)
+            self.assertEqual(len(decoded_tx["vout"]), 2)
+            return
+        except Exception as e:
+            print("Caught:", e)
+            raise
+
+
+def build_original_psbt(sender: RpcClient, pj_uri: PjUri) -> str:
+    address = pj_uri.address()
+    amount_sats = pj_uri.amount_sats()
+    amount_btc = (amount_sats / 100_000_000) if amount_sats is not None else 1.0
+    outputs = {address: amount_btc}
+    psbt = json.loads(
+        sender.call(
+            "walletcreatefundedpsbt",
+            [
+                json.dumps([]),
+                json.dumps(outputs),
+                json.dumps(0),
+                json.dumps({"lockUnspents": True, "feeRate": 0.00001}),
+            ],
+        )
+    )["psbt"]
+    return json.loads(
+        sender.call(
+            "walletprocesspsbt",
+            [psbt, json.dumps(True), json.dumps("ALL"), json.dumps(False)],
+        )
+    )["psbt"]
 
 
 def build_sweep_psbt(sender: RpcClient, pj_uri: PjUri) -> str:

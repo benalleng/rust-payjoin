@@ -15,6 +15,7 @@ use crate::uri::PjUri;
 use crate::validation::{validate_amount_sat, validate_fee_rate_sat_per_kwu};
 
 pub mod error;
+pub mod v1;
 
 macro_rules! impl_save_for_transition {
     ($ty:ident, $next_state:ident) => {
