@@ -487,6 +487,92 @@ class TestPayjoin(unittest.IsolatedAsyncioTestCase):
             print("Caught:", e)
             raise
 
+    async def test_integration_v2_to_v1(self):
+        try:
+            receiver_address = json.loads(self.receiver.call("getnewaddress", []))
+            init_tracing()
+
+            # **********************
+            # Inside the Receiver:
+            # Build a v1 BIP78 Payjoin URI.
+            pj_uri = build_v1_pj_uri(
+                receiver_address, "https://example.com", OutputSubstitution.ENABLED
+            )
+            pj_uri = pj_uri.set_amount_sats(100_000_000)
+
+            # **********************
+            # Inside the Sender (v2-capable, falls back to v1):
+            parsed_uri = Uri.parse(pj_uri.as_string()).check_pj_supported()
+            psbt = build_original_psbt(self.sender, parsed_uri)
+            v1_sender: V1Sender = V1SenderBuilder(psbt, parsed_uri).build_recommended(
+                250
+            )
+            req_ctx: RequestV1Context = v1_sender.create_v1_post_request()
+            req = req_ctx.request
+
+            # **********************
+            # Inside the Receiver: handle the v1 request in-memory.
+            query = Url.parse(req.url).query() or ""
+            headers = {
+                "content-type": req.content_type,
+                "content-length": str(len(req.body)),
+            }
+            unchecked = V1UncheckedOriginalPayload.from_request(
+                req.body, query, headers
+            )
+            maybe_inputs_owned = unchecked.check_broadcast_suitability(
+                None, MempoolAcceptanceCallback(self.receiver)
+            )
+            maybe_inputs_seen = maybe_inputs_owned.check_inputs_not_owned(
+                IsScriptOwnedCallback(self.receiver)
+            )
+            outputs_unknown = maybe_inputs_seen.check_no_inputs_seen_before(
+                CheckInputsNotSeenCallback(self.receiver)
+            )
+            wants_outputs = outputs_unknown.identify_receiver_outputs(
+                IsScriptOwnedCallback(self.receiver)
+            )
+            new_recv_addr = json.loads(self.receiver.call("getnewaddress", []))
+            decoded = json.loads(
+                self.receiver.call("getaddressinfo", [json.dumps(new_recv_addr)])
+            )
+            new_script_pubkey = bytes.fromhex(decoded["scriptPubKey"])
+            wants_inputs = wants_outputs.substitute_receiver_script(
+                new_script_pubkey
+            ).commit_outputs()
+            candidate_inputs = get_inputs(self.receiver)
+            selected = wants_inputs.try_preserving_privacy(candidate_inputs)
+            wants_fee_range = wants_inputs.contribute_inputs([selected]).commit_inputs()
+            provisional = wants_fee_range.apply_fee_range(1, 2)
+            payjoin_proposal = provisional.finalize_proposal(
+                ProcessPsbtCallback(self.receiver)
+            )
+            payjoin_psbt_b64 = payjoin_proposal.psbt()
+
+            # **********************
+            # Inside the Sender:
+            checked_psbt_b64 = req_ctx.context.process_response(
+                payjoin_psbt_b64.encode("utf-8")
+            )
+            signed = json.loads(
+                self.sender.call("walletprocesspsbt", [checked_psbt_b64])
+            )["psbt"]
+            final_tx_hex = json.loads(
+                self.sender.call("finalizepsbt", [signed, json.dumps(True)])
+            )["hex"]
+            self.sender.call("sendrawtransaction", [json.dumps(final_tx_hex)])
+
+            decoded_tx = json.loads(
+                self.sender.call("decoderawtransaction", [json.dumps(final_tx_hex)])
+            )
+            # v2-capable sender + v1 receiver: 2 inputs, 2 outputs.
+            self.assertEqual(len(decoded_tx["vin"]), 2)
+            self.assertEqual(len(decoded_tx["vout"]), 2)
+            return
+        except Exception as e:
+            print("Caught:", e)
+            raise
+
 
 def build_original_psbt(sender: RpcClient, pj_uri: PjUri) -> str:
     address = pj_uri.address()

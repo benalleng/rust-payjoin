@@ -24,6 +24,7 @@ use crate::validation::{
 use crate::{ClientResponse, OutputSubstitution, Request};
 
 pub mod error;
+pub mod v1;
 
 macro_rules! impl_save_for_transition {
     ($ty:ident, $next_state:ident) => {

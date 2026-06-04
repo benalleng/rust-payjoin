@@ -6,9 +6,25 @@ use payjoin::bitcoin::address::NetworkChecked;
 use payjoin::UriExt;
 
 use crate::error::FfiValidationError;
+use crate::output_substitution::OutputSubstitution;
 use crate::validation::validate_amount_sat;
 
 pub mod error;
+
+/// Construct a v1 BIP78 Payjoin URI from a receiver address and endpoint.
+#[uniffi::export]
+pub fn build_v1_pj_uri(
+    address: String,
+    endpoint: String,
+    output_substitution: OutputSubstitution,
+) -> Result<Arc<PjUri>, PjParseError> {
+    let parsed_address = payjoin::bitcoin::Address::from_str(address.as_str())
+        .map_err(|e| PjParseError::from_err(e.to_string()))?
+        .assume_checked();
+    payjoin::receive::v1::build_v1_pj_uri(&parsed_address, endpoint, output_substitution)
+        .map(|uri| Arc::new(PjUri::from(uri)))
+        .map_err(|e| PjParseError::from_err(e.to_string()))
+}
 #[derive(Clone, uniffi::Object)]
 pub struct Uri(payjoin::Uri<'static, NetworkChecked>);
 impl From<Uri> for payjoin::Uri<'static, NetworkChecked> {

@@ -15,8 +15,10 @@ pub use payjoin::persist::InMemoryPersister;
 
 pub use crate::ohttp::*;
 pub use crate::output_substitution::*;
+#[allow(ambiguous_glob_reexports)]
 pub use crate::receive::*;
 pub use crate::request::Request;
+#[allow(ambiguous_glob_reexports)]
 pub use crate::send::*;
 #[cfg(feature = "_test-utils")]
 pub use crate::test_utils::*;
