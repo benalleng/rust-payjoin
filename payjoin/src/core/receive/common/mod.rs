@@ -502,12 +502,12 @@ mod tests {
     use bitcoin::hashes::Hash;
     use bitcoin::key::rand::rngs::StdRng;
     use bitcoin::key::rand::SeedableRng;
-    use bitcoin::psbt::Input;
+    use bitcoin::psbt::{Input, PsbtSighashType};
     use bitcoin::secp256k1::Secp256k1;
     use bitcoin::taproot::LeafVersion;
     use bitcoin::{
-        Amount, Network, OutPoint, PubkeyHash, ScriptBuf, Sequence, TapLeafHash, Transaction, TxIn,
-        TxOut, Weight,
+        Amount, Network, OutPoint, PubkeyHash, ScriptBuf, Sequence, TapLeafHash, TapNodeHash,
+        Transaction, TxIn, TxOut, Weight,
     };
     use payjoin_test_utils::{DUMMY20, RECEIVER_INPUT_CONTRIBUTION};
 
@@ -877,6 +877,50 @@ mod tests {
             assert!(output.bip32_derivation.is_empty());
             assert!(output.tap_key_origins.is_empty());
             assert!(output.tap_internal_key.is_none());
+        }
+    }
+
+    #[test]
+    fn test_prepare_psbt_preserves_allowed_fields() {
+        let original = original_from_test_vector();
+        let mut processed_psbt = original.psbt.clone();
+
+        let secp = Secp256k1::new();
+        let (_, pk) = secp.generate_keypair(&mut bitcoin::key::rand::thread_rng());
+        let (x_only, _) = pk.x_only_public_key();
+
+        let dummy_tx = processed_psbt.unsigned_tx.clone();
+        for input in &mut processed_psbt.inputs {
+            input.non_witness_utxo = Some(dummy_tx.clone());
+            input.sighash_type = Some(PsbtSighashType::from_u32(0x01));
+            input.tap_key_sig = Some(
+                bitcoin::taproot::Signature::from_slice(&[42u8; 64])
+                    .expect("valid taproot signature"),
+            );
+            let sig = bitcoin::taproot::Signature::from_slice(&[42u8; 64])
+                .expect("valid taproot signature");
+            input.tap_script_sigs.insert(
+                (x_only, TapLeafHash::from_script(&ScriptBuf::new(), LeafVersion::TapScript)),
+                sig,
+            );
+            input.tap_merkle_root =
+                Some(TapNodeHash::from_slice(&[42u8; 32]).expect("valid tap node hash"));
+        }
+
+        let psbt_context = WantsOutputs::new(original_from_test_vector(), vec![0])
+            .commit_outputs()
+            .commit_inputs()
+            .calculate_psbt_context_with_fee_range(None, None)
+            .expect("Contributed inputs should allow for valid fee contributions");
+        let payjoin_proposal =
+            psbt_context.finalize_proposal(|_| Ok(processed_psbt.clone())).expect("Valid psbt");
+
+        for input in &payjoin_proposal.inputs {
+            assert!(input.non_witness_utxo.is_some(), "non_witness_utxo should be preserved");
+            assert!(input.sighash_type.is_some(), "sighash_type should be preserved");
+            assert!(input.tap_key_sig.is_some(), "tap_key_sig should be preserved");
+            assert!(!input.tap_script_sigs.is_empty(), "tap_script_sigs should be preserved");
+            assert!(input.tap_merkle_root.is_some(), "tap_merkle_root should be preserved");
         }
     }
 }
