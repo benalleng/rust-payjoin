@@ -251,6 +251,7 @@ impl AppTrait for App {
                         (SendSession::WithReplyKey(sender), persister)
                     }
                 };
+                println!("Send session established: {}", persister.session_id());
                 let mut interrupt = self.interrupt.clone();
                 tokio::select! {
                     res = self.process_sender_session(sender_state, &persister) => {
@@ -288,7 +289,7 @@ impl AppTrait for App {
         }
         let session = receiver_builder.build().save(&persister)?;
 
-        println!("Receive session established");
+        println!("Receive session established: {}", persister.session_id());
         let pj_uri = session.pj_uri();
         println!("Request Payjoin by sharing this Payjoin Uri:");
         println!("{pj_uri}");
@@ -528,8 +529,8 @@ impl AppTrait for App {
 
         let send_ids = self.db.get_send_session_ids()?;
         let recv_ids = self.db.get_recv_session_ids()?;
-        let is_sender = send_ids.iter().any(|id| id.0 == session_id.0);
-        let is_receiver = recv_ids.iter().any(|id| id.0 == session_id.0);
+        let is_sender = send_ids.iter().any(|id| id == &session_id);
+        let is_receiver = recv_ids.iter().any(|id| id == &session_id);
 
         match (is_sender, is_receiver) {
             (true, false) => self.cancel_sender_session(session_id, no_broadcast),
