@@ -14,7 +14,6 @@ cd rust-payjoin/payjoin-ffi/javascript
 # Clean out stale dependencies
 npm run clean
 npm run clean:test-utils
-rm -rf node_modules
 
 # Install system dependencies
 cargo install wasm-bindgen-cli
