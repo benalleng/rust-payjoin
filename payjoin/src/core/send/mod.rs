@@ -16,6 +16,8 @@
 //! Note: Even fresh requests may be linkable via metadata (e.g. client IP, request timing),
 //! but request reuse makes correlation trivial for the relay.
 
+use std::cmp::max;
+
 use bitcoin::psbt::{Psbt, PsbtSighashType};
 use bitcoin::sighash::TapSighashType;
 use bitcoin::{Amount, FeeRate, Script, ScriptBuf, TxOut, Weight};
@@ -225,6 +227,7 @@ impl PsbtContextBuilder {
             &self.payee,
             self.fee_contribution,
             self.clamp_fee_contribution,
+            self.min_fee_rate,
         )?;
 
         Ok(PsbtContext {
@@ -604,16 +607,18 @@ fn clear_unneeded_fields(psbt: &mut Psbt) {
 }
 
 /// Ensure that an additional fee output can pay for the specified additional fee
-/// without dropping to its dust value, so an honest sender never offers a
-/// contribution the receiver will ignore.
+/// without dropping to its dust value — computed at the greater of the
+/// sender's minfeerate and the dust relay fee — so an honest sender never
+/// offers a contribution the receiver will ignore.
 fn check_fee_output_amount(
     output: &TxOut,
     fee: bitcoin::Amount,
     clamp_fee_contribution: bool,
+    min_fee_rate: FeeRate,
 ) -> Result<bitcoin::Amount, InternalBuildSenderError> {
     let max_contribution = output
         .value
-        .checked_sub(output.script_pubkey.minimal_non_dust())
+        .checked_sub(output.script_pubkey.minimal_non_dust_custom(max(min_fee_rate, FeeRate::DUST)))
         .unwrap_or(bitcoin::Amount::ZERO);
     if fee > max_contribution {
         if clamp_fee_contribution {
@@ -632,6 +637,7 @@ fn find_change_index(
     payee: &Script,
     fee: bitcoin::Amount,
     clamp_fee_contribution: bool,
+    min_fee_rate: FeeRate,
 ) -> Result<Option<AdditionalFeeContribution>, InternalBuildSenderError> {
     match (psbt.unsigned_tx.output.len(), clamp_fee_contribution) {
         (0, _) => return Err(InternalBuildSenderError::NoOutputs),
@@ -651,7 +657,7 @@ fn find_change_index(
         .ok_or(InternalBuildSenderError::MultiplePayeeOutputs)?;
 
     Ok(Some(AdditionalFeeContribution {
-        max_amount: check_fee_output_amount(output, fee, clamp_fee_contribution)?,
+        max_amount: check_fee_output_amount(output, fee, clamp_fee_contribution, min_fee_rate)?,
         vout: index,
     }))
 }
@@ -664,6 +670,7 @@ fn check_change_index(
     fee: bitcoin::Amount,
     index: usize,
     clamp_fee_contribution: bool,
+    min_fee_rate: FeeRate,
 ) -> Result<AdditionalFeeContribution, InternalBuildSenderError> {
     let output = psbt
         .unsigned_tx
@@ -674,7 +681,7 @@ fn check_change_index(
         return Err(InternalBuildSenderError::ChangeIndexPointsAtPayee);
     }
     Ok(AdditionalFeeContribution {
-        max_amount: check_fee_output_amount(output, fee, clamp_fee_contribution)?,
+        max_amount: check_fee_output_amount(output, fee, clamp_fee_contribution, min_fee_rate)?,
         vout: index,
     })
 }
@@ -684,11 +691,13 @@ fn determine_fee_contribution(
     payee: &Script,
     fee_contribution: Option<(bitcoin::Amount, Option<usize>)>,
     clamp_fee_contribution: bool,
+    min_fee_rate: FeeRate,
 ) -> Result<Option<AdditionalFeeContribution>, InternalBuildSenderError> {
     let contribution = match fee_contribution {
-        Some((fee, None)) => find_change_index(psbt, payee, fee, clamp_fee_contribution)?,
+        Some((fee, None)) =>
+            find_change_index(psbt, payee, fee, clamp_fee_contribution, min_fee_rate)?,
         Some((fee, Some(index))) =>
-            Some(check_change_index(psbt, payee, fee, index, clamp_fee_contribution)?),
+            Some(check_change_index(psbt, payee, fee, index, clamp_fee_contribution, min_fee_rate)?),
         None => None,
     };
     // A clamped zero contribution offers the receiver nothing and would only
@@ -832,6 +841,7 @@ mod test {
             )?),
             Some((Amount::from_sat(1000), Some(1))),
             false,
+            FeeRate::ZERO,
         );
         assert_eq!((*fee_contribution.as_ref().expect("Failed to retrieve fees")).unwrap().vout, 1);
         assert_eq!(
@@ -850,6 +860,7 @@ mod test {
             )?),
             Some((Amount::from_sat(100000000), None)),
             false,
+            FeeRate::ZERO,
         );
         assert_eq!(
             fee_contribution.err(),
@@ -865,6 +876,7 @@ mod test {
             // a 540 sat dust value, so the contribution must leave 540 sats.
             Some((Amount::from_sat(95983068 - 540), None)),
             false,
+            FeeRate::ZERO,
         );
         assert!(fee_contribution.is_ok());
         Ok(())
@@ -883,6 +895,7 @@ mod test {
             &payee_script,
             Some((Amount::from_sat(1000), None)),
             false,
+            FeeRate::ZERO,
         );
         assert_eq!(
             fee_contribution,
@@ -896,6 +909,7 @@ mod test {
             &payee_script,
             Some((Amount::from_sat(1000), None)),
             true,
+            FeeRate::ZERO,
         );
         assert_eq!(
             fee_contribution,
@@ -913,8 +927,51 @@ mod test {
             &payee_script,
             Some((Amount::from_sat(1000), None)),
             true,
+            FeeRate::ZERO,
         );
         assert_eq!(fee_contribution, Ok(None));
+        Ok(())
+    }
+
+    // The dust margin scales with the sender's minfeerate when it exceeds the
+    // dust relay fee: the same output that affords a contribution at the
+    // default 3 sat/vB threshold affords nothing at a higher rate, matching
+    // the receiver's rate-aware sanitization.
+    #[test]
+    fn test_fee_contribution_dust_margin_at_min_fee_rate() -> Result<(), BoxError> {
+        let payee_script = ScriptBuf::from_hex("0014b60943f60c3ee848828bdace7474a92e81f3fcdd")?;
+        let mut psbt = PARSED_ORIGINAL_PSBT.clone();
+        // P2SH dust is 540 sats at 3 sat/vB and 9000 sats at 50 sat/vB.
+        psbt.unsigned_tx.output[0].value = Amount::from_sat(999);
+
+        let fee_contribution = determine_fee_contribution(
+            &psbt,
+            &payee_script,
+            Some((Amount::from_sat(1000), None)),
+            true,
+            FeeRate::ZERO,
+        );
+        assert_eq!(
+            fee_contribution,
+            Ok(Some(AdditionalFeeContribution {
+                max_amount: Amount::from_sat(999 - 540),
+                vout: 0,
+            })),
+            "at the default dust relay fee the 999 sat output affords 459 sats"
+        );
+
+        let fee_contribution = determine_fee_contribution(
+            &psbt,
+            &payee_script,
+            Some((Amount::from_sat(1000), None)),
+            true,
+            FeeRate::from_sat_per_vb_u32(50),
+        );
+        assert_eq!(
+            fee_contribution,
+            Ok(None),
+            "at 50 sat/vB the 9000 sat dust value exceeds the 999 sat output, so nothing is offered"
+        );
         Ok(())
     }
 
@@ -928,6 +985,7 @@ mod test {
             payee_script,
             Some((Amount::from_sat(1000), Some(1))),
             false,
+            FeeRate::ZERO,
         );
         assert_eq!(
             *payee_script,
@@ -960,6 +1018,7 @@ mod test {
             &payee_script,
             Some((Amount::from_sat(1000), None)),
             true,
+            FeeRate::ZERO,
         );
         assert!(
             fee_contribution.as_ref().is_ok(),
@@ -981,6 +1040,7 @@ mod test {
             &ScriptBuf::from_hex("0014908eb2d695cf78e39a621d1561655790d1a8c60f")?,
             Some((Amount::from_sat(1000), None)),
             true,
+            FeeRate::ZERO,
         );
         assert_eq!(fee_contribution, Err(InternalBuildSenderError::NoOutputs));
 
@@ -994,6 +1054,7 @@ mod test {
             &ScriptBuf::from_hex("a9141de849f069d274150e3afeae8d72eb5a6b09443087")?,
             Some((Amount::from_sat(1000), None)),
             true,
+            FeeRate::ZERO,
         );
         assert_eq!(fee_contribution, Err(InternalBuildSenderError::MultiplePayeeOutputs));
 
@@ -1010,6 +1071,7 @@ mod test {
             ),
             Some((Amount::from_sat(1000), None)),
             true,
+            FeeRate::ZERO,
         );
         assert_eq!(fee_contribution, Ok(None));
 
@@ -1021,6 +1083,7 @@ mod test {
             ),
             Some((Amount::from_sat(1000), None)),
             false,
+            FeeRate::ZERO,
         );
         assert_eq!(
             fee_contribution,
@@ -1032,6 +1095,7 @@ mod test {
             &payee_script,
             Some((Amount::from_sat(1000), None)),
             false,
+            FeeRate::ZERO,
         );
         assert_eq!(fee_contribution, Err(InternalBuildSenderError::MissingPayeeOutput));
 
@@ -1040,6 +1104,7 @@ mod test {
             &payee_script,
             Some((Amount::from_sat(1000), None)),
             true,
+            FeeRate::ZERO,
         );
         assert_eq!(fee_contribution, Err(InternalBuildSenderError::MissingPayeeOutput));
 
@@ -1053,6 +1118,7 @@ mod test {
             &payee_script,
             Some((Amount::from_sat(1000), None)),
             true,
+            FeeRate::ZERO,
         );
         assert_eq!(fee_contribution, Err(InternalBuildSenderError::AmbiguousChangeOutput));
         Ok(())

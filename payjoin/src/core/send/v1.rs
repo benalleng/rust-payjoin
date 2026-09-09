@@ -380,33 +380,32 @@ mod test {
         )
         .build_recommended(FeeRate::from_sat_per_vb(170000000).expect("Could not determine feerate"));
         assert!(sender.is_ok(), "{:#?}", sender.err());
-        // The contribution is clamped to the change output's value minus its
-        // 294 sat P2WPKH dust value.
-        assert_eq!(
-            sender.unwrap().psbt_ctx.fee_contribution.unwrap().max_amount,
-            Amount::from_sat(9999999822 - 294)
-        );
+        // At this fee rate the change output's P2WPKH dust value (98 vB
+        // times 170000000 sat/vB) exceeds the output's value, so no
+        // contribution can be offered at all.
+        assert!(sender.unwrap().psbt_ctx.fee_contribution.is_none());
 
         Ok(())
     }
 
     #[test]
-    fn test_build_recommended_max_fee_contribution() {
+    fn test_build_recommended_contribution_within_dust_margin() {
         let psbt = PARSED_ORIGINAL_PSBT.clone();
         let sender = SenderBuilder::new(psbt.clone(), pj_uri(PJ_URI))
             .build_recommended(
-                FeeRate::from_sat_per_vb(2000000).expect("Could not determine feerate"),
+                FeeRate::from_sat_per_vb(350000).expect("Could not determine feerate"),
             )
             .expect("sender should succeed");
         assert_eq!(sender.psbt_ctx.output_substitution, OutputSubstitution::Disabled);
         assert_eq!(&sender.psbt_ctx.payee, &pj_uri(PJ_URI).address().script_pubkey());
         let fee_contribution =
             sender.psbt_ctx.fee_contribution.expect("sender should contribute fees");
-        // The contribution is clamped to the change output's value minus its
-        // 540 sat P2SH dust value.
-        assert_eq!(fee_contribution.max_amount, Amount::from_sat(95983068 - 540));
+        // The recommended fee is the 364 wu input weight times the fee rate,
+        // and it must fit within the change output's value minus its P2SH
+        // dust value at the same rate (180 vB times 350000 sat/vB).
+        assert_eq!(fee_contribution.max_amount, Amount::from_sat(31_850_000));
         assert_eq!(fee_contribution.vout, 0);
-        assert_eq!(sender.psbt_ctx.min_fee_rate, FeeRate::from_sat_per_kwu(500000000));
+        assert_eq!(sender.psbt_ctx.min_fee_rate, FeeRate::from_sat_per_kwu(87500000));
     }
 
     #[test]
