@@ -2754,8 +2754,6 @@ dependencies = [
  "async-trait",
  "bdk_wallet",
  "getrandom 0.2.17",
- "icu_locale_core",
- "icu_provider",
  "lazy_static",
  "payjoin",
  "payjoin-test-utils",
