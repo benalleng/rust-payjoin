@@ -339,8 +339,11 @@ impl PsbtContext {
         )?;
         if self.min_fee_rate > FeeRate::ZERO {
             let proposed_weight = proposal.clone().extract_tx_unchecked_fee_rate().weight();
+            let proposed_fee_rate = proposed_fee
+                .div_by_weight_floor(proposed_weight)
+                .ok_or(InternalProposalError::FeeCalculationOverflow)?;
             ensure(
-                proposed_fee / proposed_weight >= self.min_fee_rate,
+                proposed_fee_rate >= self.min_fee_rate,
                 InternalProposalError::FeeRateBelowMinimum,
             )?;
         }
