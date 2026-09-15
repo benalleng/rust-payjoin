@@ -484,12 +484,13 @@ impl WantsFeeRange {
                 // receiver outputs were added to the payjoin psbt.
                 let sender_fee_output =
                     &self.original.original_psbt.unsigned_tx.output[additional_fee_output_index];
-                // Find the index of that output in the payjoin psbt
+                // Match on the whole TxOut, not just the script pubkey, so that
+                // duplicate scripts resolve to the sender's actual output.
                 let sender_fee_vout = payjoin_psbt
                     .unsigned_tx
                     .output
                     .iter()
-                    .position(|txo| txo.script_pubkey == sender_fee_output.script_pubkey)
+                    .position(|txo| txo == sender_fee_output)
                     .expect("Sender output is missing from payjoin PSBT");
                 // Determine the additional amount that the sender will pay in fees
                 let sender_additional_fee = min(max_additional_fee_contribution, additional_fee);
