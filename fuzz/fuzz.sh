@@ -33,5 +33,5 @@ fi
 for targetFile in $targetFiles; do
     targetName=$(targetFileToName "$targetFile")
     echo "Fuzzing target $targetName ($targetFile)"
-    cargo fuzz run "$targetName" -- -max_total_time=30 -fork="$FORKS"
+    cargo fuzz run "$targetName" -- -max_total_time=300 -fork="$FORKS"
 done
