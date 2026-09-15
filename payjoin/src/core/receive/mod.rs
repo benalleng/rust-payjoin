@@ -386,7 +386,9 @@ impl OriginalPayload {
         let original_psbt_fee = self.psbt.fee().map_err(|e| {
             InternalPayloadError::ParsePsbt(bitcoin::psbt::PsbtParseError::PsbtEncoding(e))
         })?;
-        Ok(original_psbt_fee / self.psbt.clone().extract_tx_unchecked_fee_rate().weight())
+        original_psbt_fee
+            .div_by_weight_floor(self.psbt.clone().extract_tx_unchecked_fee_rate().weight())
+            .ok_or(InternalPayloadError::FeeCalculationOverflow)
     }
 
     pub fn check_broadcast_suitability(
