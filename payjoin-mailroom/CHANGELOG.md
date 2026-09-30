@@ -1,5 +1,14 @@
 # Payjoin Mailroom Changelog
 
+## 0.1.3
+
+- Bump payjoin dependency to 1.2.0 (from 1.0.0-rc.3)
+- Update opentelemetry to 0.32, addressing unbounded memory allocation (GHSA-w9wp-h8wv-79jx)
+- Give the telemetry feature an http-client via `opentelemetry-http` and `hyper` instead of `reqwest-rustls`, avoiding a crypto provider mismatch with `ring`
+- Update bitcoin-ohttp dependency to 0.7.0
+- Bump rust-bitcoin minimums to the 0.32.10x line (#1879)
+- Update Cargo.toml edition to 2024 (#1874)
+
 ## 0.1.2
 
 - Add db entry metrics (#1412)
