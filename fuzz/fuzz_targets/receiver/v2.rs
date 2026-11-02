@@ -1,4 +1,5 @@
-#![cfg_attr(not(test), no_main)]
+#![cfg_attr(fuzzing, no_main)]
+#![cfg_attr(not(fuzzing), allow(unused))]
 
 //! v2 receiver under fuzz. The fuzzer controls the plaintext a sender
 //! posts to the receiver's mailbox, and the receiver walks its typestate
@@ -399,7 +400,10 @@ fn amounts_within_max_money(psbt: &Psbt) -> bool {
     input_total <= max && output_total <= max
 }
 
-fn do_fuzz(data: &[u8]) -> Stage {
+#[cfg(not(fuzzing))]
+fn main() {}
+
+fn do_test(data: &[u8]) -> Stage {
     let (psbt_bytes, query_bytes) = split_input(data);
     let Ok(psbt) = Psbt::deserialize(psbt_bytes) else { return Stage::Rejected };
     let Ok(query) = std::str::from_utf8(query_bytes) else { return Stage::Rejected };
@@ -533,7 +537,7 @@ fn do_fuzz(data: &[u8]) -> Stage {
 }
 
 fuzz_target!(|data| {
-    let _ = do_fuzz(data);
+    let _ = do_test(data);
 });
 
 #[cfg(test)]
@@ -542,12 +546,12 @@ mod tests {
 
     #[test]
     fn empty_input_does_not_crash() {
-        assert_eq!(super::do_fuzz(&[]), Stage::Rejected);
+        assert_eq!(super::do_test(&[]), Stage::Rejected);
     }
 
     #[test]
     fn length_prefix_beyond_buffer_does_not_panic() {
-        assert_eq!(super::do_fuzz(&[0xff, 0xff, 0x00]), Stage::Rejected);
+        assert_eq!(super::do_test(&[0xff, 0xff, 0x00]), Stage::Rejected);
     }
 
     /// The seed PSBT with a well-formed query must walk the whole chain,
@@ -561,6 +565,6 @@ mod tests {
         let mut input = len.to_be_bytes().to_vec();
         input.extend_from_slice(psbt);
         input.extend_from_slice(super::DEFAULT_QUERY.as_bytes());
-        assert_eq!(super::do_fuzz(&input), Stage::Validated);
+        assert_eq!(super::do_test(&input), Stage::Validated);
     }
 }

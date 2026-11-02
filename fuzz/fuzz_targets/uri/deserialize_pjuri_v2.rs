@@ -1,4 +1,5 @@
-#![no_main]
+#![cfg_attr(fuzzing, no_main)]
+#![cfg_attr(not(fuzzing), allow(unused))]
 
 use libfuzzer_sys::{fuzz_mutator, fuzz_target, fuzzer_mutate};
 use payjoin::bitcoin::address::{Address, NetworkUnchecked};
@@ -74,6 +75,9 @@ fuzz_mutator!(|data: &mut [u8], size: usize, max_size: usize, seed: u32| {
     data[prefix.len()..prefix.len() + query_len].copy_from_slice(&buf[..query_len]);
     prefix.len() + query_len
 });
+
+#[cfg(not(fuzzing))]
+fn main() {}
 
 fn do_test(data: &[u8]) {
     if let Ok(uri_str) = std::str::from_utf8(data) {

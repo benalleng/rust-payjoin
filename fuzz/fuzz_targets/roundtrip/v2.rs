@@ -1,4 +1,5 @@
-#![cfg_attr(not(test), no_main)]
+#![cfg_attr(fuzzing, no_main)]
+#![cfg_attr(not(fuzzing), allow(unused))]
 
 //! End to end v2 payjoin under fuzz: a real `send::v2` sender and a real
 //! `receive::v2` receiver talk through an in-process mock directory.
@@ -592,13 +593,16 @@ fn run(psbt_bytes: &[u8], s: &Scenario) -> Stage {
     stage
 }
 
-fn do_fuzz(data: &[u8]) -> Stage {
+#[cfg(not(fuzzing))]
+fn main() {}
+
+fn do_test(data: &[u8]) -> Stage {
     let (psbt_bytes, scenario_bytes) = split_input(data);
     run(psbt_bytes, &Scenario::from_bytes(scenario_bytes))
 }
 
 fuzz_target!(|data| {
-    let _ = do_fuzz(data);
+    let _ = do_test(data);
 });
 
 #[cfg(test)]
@@ -609,12 +613,12 @@ mod tests {
 
     #[test]
     fn empty_input_does_not_crash() {
-        assert_eq!(super::do_fuzz(&[]), Stage::Rejected);
+        assert_eq!(super::do_test(&[]), Stage::Rejected);
     }
 
     #[test]
     fn length_prefix_beyond_buffer_does_not_panic() {
-        assert_eq!(super::do_fuzz(&[0xff, 0xff, 0x00]), Stage::Rejected);
+        assert_eq!(super::do_test(&[0xff, 0xff, 0x00]), Stage::Rejected);
     }
 
     /// The seed PSBT with an empty scenario must complete the payjoin. If
@@ -626,7 +630,7 @@ mod tests {
         let len = u16::try_from(psbt.len()).expect("seed fits in u16");
         let mut input = len.to_be_bytes().to_vec();
         input.extend_from_slice(psbt);
-        assert_eq!(super::do_fuzz(&input), Stage::Completed);
+        assert_eq!(super::do_test(&input), Stage::Completed);
     }
 
     #[test]

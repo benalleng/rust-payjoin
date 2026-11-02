@@ -1,4 +1,5 @@
-#![cfg_attr(not(test), no_main)]
+#![cfg_attr(fuzzing, no_main)]
+#![cfg_attr(not(fuzzing), allow(unused))]
 
 use std::str::FromStr;
 use std::sync::LazyLock;
@@ -95,6 +96,9 @@ fuzz_mutator!(|data: &mut [u8], size: usize, max_size: usize, seed: u32| {
     data[HEADER + psbt.len()..HEADER + psbt.len() + query_len].copy_from_slice(&buf[..query_len]);
     HEADER + psbt.len() + query_len
 });
+
+#[cfg(not(fuzzing))]
+fn main() {}
 
 fn do_test(data: &[u8]) {
     let (psbt_bytes, query_bytes) = split_input(data);

@@ -1,10 +1,14 @@
-#![no_main]
+#![cfg_attr(fuzzing, no_main)]
+#![cfg_attr(not(fuzzing), allow(unused))]
 
 use std::str;
 
 use libfuzzer_sys::fuzz_target;
 // Adjust this path to wherever your Url module lives in your crate.
 use payjoin::Url;
+
+#[cfg(not(fuzzing))]
+fn main() {}
 
 fn do_test(data: &[u8]) {
     let Ok(s) = str::from_utf8(data) else { return };

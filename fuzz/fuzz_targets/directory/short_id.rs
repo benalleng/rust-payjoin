@@ -1,4 +1,5 @@
-#![no_main]
+#![cfg_attr(fuzzing, no_main)]
+#![cfg_attr(not(fuzzing), allow(unused))]
 
 use libfuzzer_sys::fuzz_target;
 use payjoin::directory::ShortId;
@@ -31,6 +32,9 @@ fn do_test(data: &[u8]) {
         assert_eq!(reparsed, id, "round-trip mismatch via FromStr/Display: {s}");
     }
 }
+
+#[cfg(not(fuzzing))]
+fn main() {}
 
 fuzz_target!(|data| {
     do_test(data);

@@ -27,6 +27,9 @@ payjoin-ffi = { path = "../payjoin-ffi" }
 # a replyable error's extra map drifts on every to_json/from_json cycle.
 serde_json = { version = "1.0.149", features = ["float_roundtrip"] }
 
+[lints.rust]
+unexpected_cfgs = { level = "deny", check-cfg = ['cfg(fuzzing)'] }
+
 [[bin]]
 name = "uri-deserialize-pjuri"
 path = "fuzz_targets/uri/deserialize_pjuri.rs"

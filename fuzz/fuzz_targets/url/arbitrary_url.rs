@@ -1,8 +1,12 @@
-#![no_main]
+#![cfg_attr(fuzzing, no_main)]
+#![cfg_attr(not(fuzzing), allow(unused))]
 
 use arbitrary::{Arbitrary, Unstructured};
 use libfuzzer_sys::fuzz_target;
 use payjoin::Url;
+
+#[cfg(not(fuzzing))]
+fn main() {}
 
 fn do_test(data: &[u8]) {
     let mut u = Unstructured::new(data);

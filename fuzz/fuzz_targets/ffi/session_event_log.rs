@@ -1,4 +1,5 @@
-#![no_main]
+#![cfg_attr(fuzzing, no_main)]
+#![cfg_attr(not(fuzzing), allow(unused))]
 
 use std::sync::{Arc, LazyLock};
 
@@ -282,6 +283,9 @@ fn check_round_trip(event: &str) {
         );
     }
 }
+
+#[cfg(not(fuzzing))]
+fn main() {}
 
 // Bindings persist session events as JSON in host-side storage and replay
 // them on resume, so both the events and their order come from outside Rust.
